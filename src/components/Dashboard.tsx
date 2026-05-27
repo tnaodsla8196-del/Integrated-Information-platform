@@ -841,13 +841,13 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             </button>
                           </div>
                         ) : (
-                          <div className="flex justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-2">
                             <button 
                               onClick={() => {
                                 setEditingId(emp.id);
                                 setEditValues(emp);
                               }}
-                              className="text-[10px] sm:text-xs text-blue-500 sm:text-slate-400 hover:text-blue-600 underline font-medium"
+                              className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 underline font-medium"
                             >
                               수정
                             </button>

@@ -86,6 +86,26 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
     const lines = text.split(/\r?\n/);
     if (lines.length <= 1) return [];
 
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    // Fetch existing records from Supabase to preserve manual edits
+    const existingMap = new Map<string, any>();
+    if (supabaseUrl && supabaseAnonKey) {
+      try {
+        const { data: existingRows } = await supabase
+          .from('employees')
+          .select('*');
+        if (existingRows) {
+          existingRows.forEach(row => {
+            existingMap.set(row.id, row);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch existing records for merge:', err);
+      }
+    }
+
     const employeesToUpsert: any[] = [];
     const employeesList: Employee[] = [];
 
@@ -101,6 +121,14 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const empTypeVal = (row[14] || '상용직').trim();
       const yearsInRankVal = (row[15] || '').trim();
 
+      const existing = existingMap.get(id);
+      const remarksType = existing ? existing.remarks_type : '선택 없음';
+      const remarksMemo = existing ? existing.remarks_memo : '';
+      const promotionStatus = existing ? existing.promotion_status : undefined;
+      const probationStatus = existing ? existing.probation_status : undefined;
+      const status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
+      const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
+
       const baseEmployee: Employee = {
         id: id,
         name: row[1] || '',
@@ -109,25 +137,25 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
         rank: row[4] || '',
         hireDate: row[5] || '',
         resignationDate: row[6] || '',
-        status: ((row[7] || '').trim() as EmploymentStatus) || '재직',
+        status: status,
         duration: row[8] || '',
         gender: (genderVal === '여' ? '여' : '남') as any,
         totalLeave: isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]),
         usedLeave: isNaN(parseFloat(row[11])) ? 0 : parseFloat(row[11]),
         remainingLeave: isNaN(parseFloat(row[12])) ? 0 : parseFloat(row[12]),
         residentNumber: row[14] || '',
-        employmentType: (empTypeVal.includes('계약직') ? '계약직' : '상용직') as any,
+        employmentType: employmentType,
         yearsInRank: yearsInRankVal,
-        remarksType: '선택 없음',
-        remarksMemo: '',
+        remarksType: remarksType,
+        remarksMemo: remarksMemo,
+        promotionStatus: promotionStatus,
+        probationStatus: probationStatus,
       };
 
       employeesList.push(baseEmployee);
       employeesToUpsert.push(mapEmployeeToDb(baseEmployee));
     }
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     if (supabaseUrl && supabaseAnonKey && employeesToUpsert.length > 0) {
       const { error } = await supabase
         .from('employees')
@@ -163,29 +191,27 @@ export const fetchEmployeesFromSheets = async (
   }
 
   try {
-    if (forceSync) {
-      return await syncGoogleSheetsToSupabase();
-    }
-
-    const { data, error } = await supabase
-      .from('employees')
-      .select('*')
-      .order('name');
-
-    if (error) throw error;
-
-    if (!data || data.length === 0) {
-      return await syncGoogleSheetsToSupabase();
-    }
-
-    const list = data.map(mapDbToEmployee);
-    localStorage.setItem('hr_employees', JSON.stringify(list));
-    return list;
+    // Automatically sync from Google Sheets on load by default
+    return await syncGoogleSheetsToSupabase();
   } catch (error) {
-    console.error('Error in fetchEmployeesFromSheets:', error);
-    const local = localStorage.getItem('hr_employees');
-    if (local) return JSON.parse(local);
-    return MOCK_EMPLOYEES;
+    console.error('Error auto-syncing from Sheets, falling back to cached Supabase data:', error);
+    try {
+      const { data, error: dbError } = await supabase
+        .from('employees')
+        .select('*')
+        .order('name');
+
+      if (dbError) throw dbError;
+
+      const list = data.map(mapDbToEmployee);
+      localStorage.setItem('hr_employees', JSON.stringify(list));
+      return list;
+    } catch (fallbackError) {
+      console.error('Fallback fetch from Supabase failed:', fallbackError);
+      const local = localStorage.getItem('hr_employees');
+      if (local) return JSON.parse(local);
+      return MOCK_EMPLOYEES;
+    }
   }
 };
 

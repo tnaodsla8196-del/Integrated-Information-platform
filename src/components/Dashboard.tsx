@@ -113,6 +113,14 @@ export const Dashboard = ({ token }: DashboardProps) => {
   const now = new Date();
   
   const [employees, setEmployees] = useState<Employee[]>([]);
+  
+  const getErrorMessage = (err: any) => {
+    if (!err) return 'Unknown error';
+    if (typeof err === 'object') {
+      return err.message || JSON.stringify(err);
+    }
+    return String(err);
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedTime, setLastSyncedTime] = useState<string | null>(null);
@@ -156,7 +164,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     try {
       await updateEmployeeInSheets(token, updatedEmployee, index);
     } catch (err) {
-      alert('업데이트 실패: ' + err);
+      alert('업데이트 실패: ' + getErrorMessage(err));
       loadData();
     }
   };
@@ -175,7 +183,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     try {
       await updateEmployeeInSheets(token, updatedEmployee, index);
     } catch (err) {
-      alert('업데이트 실패: ' + err);
+      alert('업데이트 실패: ' + getErrorMessage(err));
       loadData();
     }
   };
@@ -215,7 +223,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     try {
       await updateEmployeeInSheets(token, updatedEmployee, index);
     } catch (err) {
-      alert('업데이트 실패: ' + err);
+      alert('업데이트 실패: ' + getErrorMessage(err));
       loadData();
     }
   };
@@ -244,7 +252,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     try {
       await updateEmployeeInSheets(token, updatedEmployee, index);
     } catch (err) {
-      alert('업데이트 실패: ' + err);
+      alert('업데이트 실패: ' + getErrorMessage(err));
       loadData();
     }
   };
@@ -258,7 +266,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
       setEmployees(updatedEmployees);
       alert('성공적으로 모두 "재직" 상태로 초기화되었습니다.');
     } catch (err) {
-      alert('초기화 실패: ' + err);
+      alert('초기화 실패: ' + getErrorMessage(err));
       loadData();
     } finally {
       setIsSyncing(false);

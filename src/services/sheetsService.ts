@@ -125,13 +125,34 @@ const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
       records.forEach((rec: any) => {
         const sapId = rec.sap_id?.trim();
         const type = rec.type?.trim();
-        const useDays = parseFloat(rec.use_days || 0);
-        const isApproved = rec.status?.trim() === '결재종결';
-        const isAnnualLeave = type === '연차' || type === '오후반차' || type === '오전반차';
+        const status = rec.status?.trim();
+        
+        // 1. 반려되지 않은 모든 신청 건을 포함하여 상태 불일치 방지
+        const isApproved = status !== '반려' && status !== '반려종결';
+        
+        // 2. 연차 소진에 해당하는 타입(연차, 반차 등)을 유연하게 매핑
+        const isAnnualLeave = type && (
+          type.includes('연차') || 
+          type.includes('반차') || 
+          type.includes('휴가')
+        ) && !type.includes('대체') 
+          && !type.includes('보상') 
+          && !type.includes('경조') 
+          && !type.includes('출산')
+          && !type.includes('공가')
+          && !type.includes('병가');
 
         if (sapId && isApproved && isAnnualLeave) {
-          const currentSum = leaveUsageMap.get(sapId) || 0;
-          leaveUsageMap.set(sapId, currentSum + useDays);
+          // 3. use_days 누락 시 폴백 연산
+          let useDays = parseFloat(rec.use_days);
+          if (isNaN(useDays) || useDays <= 0) {
+            useDays = (type.includes('반차') || type.includes('0.5')) ? 0.5 : 1;
+          }
+          
+          // 4. 사번 대소문자 미스매칭 원천 차단 (소문자화하여 키 설정)
+          const key = sapId.toLowerCase();
+          const currentSum = leaveUsageMap.get(key) || 0;
+          leaveUsageMap.set(key, currentSum + useDays);
         }
       });
     }
@@ -144,8 +165,8 @@ const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
 const mergeLeaveUsage = async (employees: Employee[]): Promise<Employee[]> => {
   const leaveUsageMap = await getLeaveUsageMap();
   return employees.map(emp => {
-    const realUsedLeave = leaveUsageMap.get(emp.id) || 0;
-    // Fallback/merge 시에도 실시간 오늘 일자에 맞춰 1년 미만 입사자의 발생 연차가 dynamic하게 변하므로 계산을 씌워줍니다.
+    // 사번 대소문자 미스매칭 매핑 보강
+    const realUsedLeave = leaveUsageMap.get(emp.id?.toLowerCase()) || 0;
     const calculatedTotal = calculateGeneratedLeave(emp.hireDate, emp.totalLeave);
     const remainingLeave = calculatedTotal - realUsedLeave;
     return {
@@ -212,7 +233,7 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
       const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
       
-      const usedLeave = leaveUsageMap.get(id) || 0;
+      const usedLeave = leaveUsageMap.get(id.toLowerCase()) || 0;
       const sheetTotalLeave = isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]);
       const totalLeave = calculateGeneratedLeave(row[5] || '', sheetTotalLeave);
 

@@ -76,6 +76,55 @@ const mapEmployeeToDb = (emp: Employee): any => ({
   remarks_memo: emp.remarksMemo || '',
 });
 
+const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
+  const leaveUsageMap = new Map<string, number>();
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return leaveUsageMap;
+  }
+
+  try {
+    const { data: records, error } = await supabase
+      .from('attendance_records')
+      .select('sap_id, type, use_days, status');
+
+    if (error) throw error;
+
+    if (records) {
+      records.forEach((rec: any) => {
+        const sapId = rec.sap_id?.trim();
+        const type = rec.type?.trim();
+        const useDays = parseFloat(rec.use_days || 0);
+        const isApproved = rec.status?.trim() === '결재종결';
+        const isAnnualLeave = type === '연차' || type === '오후반차' || type === '오전반차';
+
+        if (sapId && isApproved && isAnnualLeave) {
+          const currentSum = leaveUsageMap.get(sapId) || 0;
+          leaveUsageMap.set(sapId, currentSum + useDays);
+        }
+      });
+    }
+  } catch (err) {
+    console.error('Failed to fetch attendance_records for leave aggregation:', err);
+  }
+  return leaveUsageMap;
+};
+
+const mergeLeaveUsage = async (employees: Employee[]): Promise<Employee[]> => {
+  const leaveUsageMap = await getLeaveUsageMap();
+  return employees.map(emp => {
+    const realUsedLeave = leaveUsageMap.get(emp.id) || 0;
+    const remainingLeave = (emp.totalLeave || 0) - realUsedLeave;
+    return {
+      ...emp,
+      usedLeave: realUsedLeave,
+      remainingLeave: remainingLeave
+    };
+  });
+};
+
 const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
   try {
     const targetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
@@ -106,6 +155,8 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       }
     }
 
+    const leaveUsageMap = await getLeaveUsageMap();
+
     const employeesToUpsert: any[] = [];
     const employeesList: Employee[] = [];
 
@@ -129,9 +180,7 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
       const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
       
-      const usedLeave = existing && existing.used_leave !== null && existing.used_leave !== undefined
-        ? parseFloat(existing.used_leave)
-        : (isNaN(parseFloat(row[11])) ? 0 : parseFloat(row[11]));
+      const usedLeave = leaveUsageMap.get(id) || 0;
 
       const baseEmployee: Employee = {
         id: id,
@@ -195,8 +244,8 @@ export const fetchEmployeesFromSheets = async (
   }
 
   try {
-    // Automatically sync from Google Sheets on load by default
-    return await syncGoogleSheetsToSupabase();
+    const list = await syncGoogleSheetsToSupabase();
+    return await mergeLeaveUsage(list);
   } catch (error) {
     console.error('Error auto-syncing from Sheets, falling back to cached Supabase data:', error);
     try {
@@ -208,8 +257,9 @@ export const fetchEmployeesFromSheets = async (
       if (dbError) throw dbError;
 
       const list = data.map(mapDbToEmployee);
-      localStorage.setItem('hr_employees', JSON.stringify(list));
-      return list;
+      const mergedList = await mergeLeaveUsage(list);
+      localStorage.setItem('hr_employees', JSON.stringify(mergedList));
+      return mergedList;
     } catch (fallbackError) {
       console.error('Fallback fetch from Supabase failed:', fallbackError);
       const local = localStorage.getItem('hr_employees');

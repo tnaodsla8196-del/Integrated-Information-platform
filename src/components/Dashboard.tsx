@@ -287,7 +287,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     if (index === -1) return;
 
     const used = editValues.usedLeave ?? employees[index].usedLeave ?? 0;
-    const total = calculateLeaveByHireDate(employees[index].hireDate);
+    const total = calculateLeaveByFiscalYear(employees[index].hireDate);
     const remaining = total - used;
 
     const updatedEmployee = { 
@@ -618,48 +618,50 @@ export const Dashboard = ({ token }: DashboardProps) => {
               <table className="w-full text-[10px] sm:text-[13px] border-collapse min-w-full bg-white">
                 <thead>
                   <tr className="border-b border-slate-100 text-left">
-                    <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px]">성명</th>
-                    <th className={cn(
-                      "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                      "hidden md:table-cell"
-                    )}>본부</th>
-                    <th className={cn(
-                      "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                      activeTab === 'attendance' ? "hidden sm:table-cell" : "table-cell"
-                    )}>팀명</th>
-                    <th className={cn(
-                      "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                      activeTab === 'attendance' ? "hidden sm:table-cell" : "table-cell"
-                    )}>직급</th>
-                    {activeTab === 'status' && (
-                      <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">연차</th>
-                    )}
-                    {activeTab === 'tenure' && (
-                      <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">재직기간</th>
-                    )}
-                    {activeTab === 'status' && (
-                      <>
-                        <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">형태</th>
-                        <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">승진 여부</th>
-                        <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">특이사항</th>
-                      </>
-                    )}
-                    <th className={cn(
-                      "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                      activeTab === 'attendance' ? "table-cell" : "hidden sm:table-cell"
-                    )}>입사일</th>
                     {activeTab === 'attendance' ? (
                       <>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">발생 (입사일)</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">발생 (회계년도)</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">사용</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">잔여 (입사일)</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">잔여 (회계년도)</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">팀명</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">직급</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px] text-xs sm:text-sm">성명</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">입사일</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">발생(회계년도)</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">사용</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">잔여</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm">관리</th>
                       </>
                     ) : (
-                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">상태</th>
+                      <>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px]">성명</th>
+                        <th className={cn(
+                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
+                          "hidden md:table-cell"
+                        )}>본부</th>
+                        <th className={cn(
+                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
+                          "table-cell"
+                        )}>팀명</th>
+                        <th className={cn(
+                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
+                          "table-cell"
+                        )}>직급</th>
+                        {activeTab === 'status' && (
+                          <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">연차</th>
+                        )}
+                        {activeTab === 'tenure' && (
+                          <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">재직기간</th>
+                        )}
+                        {activeTab === 'status' && (
+                          <>
+                            <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">형태</th>
+                            <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">승진 여부</th>
+                            <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">특이사항</th>
+                          </>
+                        )}
+                        <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">입사일</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">상태</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
+                      </>
                     )}
-                    <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -682,6 +684,104 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     })
                     .map((emp, idx) => {
                       const isPromoted = activeTab === 'status' && getPromotionStatus(emp) === '승진';
+
+                      if (activeTab === 'attendance') {
+                        const leaveFiscal = calculateLeaveByFiscalYear(emp.hireDate);
+                        const usedLeave = emp.usedLeave || 0;
+                        const remainingLeave = leaveFiscal - usedLeave;
+
+                        return (
+                          <tr 
+                            key={`${emp.id}-${idx}`} 
+                            className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group"
+                          >
+                            {/* 팀명 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              {editingId === emp.id ? (
+                                <input 
+                                  className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
+                                  value={editValues.team || emp.team}
+                                  onChange={(e) => setEditValues({ ...editValues, team: e.target.value })}
+                                />
+                              ) : formatTeamName(emp.team)}
+                            </td>
+                            {/* 직급 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              {editingId === emp.id ? (
+                                <input 
+                                  className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
+                                  value={editValues.rank || emp.rank}
+                                  onChange={(e) => setEditValues({ ...editValues, rank: e.target.value })}
+                                />
+                              ) : formatRankName(emp.rank)}
+                            </td>
+                            {/* 성명 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 text-xs sm:text-sm">
+                              {editingId === emp.id ? (
+                                <input 
+                                  className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
+                                  value={editValues.name || emp.name}
+                                  onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                                />
+                              ) : emp.name}
+                            </td>
+                            {/* 입사일 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              {editingId === emp.id ? (
+                                <input 
+                                  className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
+                                  value={editValues.hireDate || emp.hireDate}
+                                  onChange={(e) => setEditValues({ ...editValues, hireDate: e.target.value })}
+                                />
+                              ) : emp.hireDate}
+                            </td>
+                            {/* 발생(회계년도) */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650 text-xs sm:text-sm">
+                              {leaveFiscal}
+                            </td>
+                            {/* 사용 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold font-mono text-xs sm:text-sm">
+                              {usedLeave}
+                            </td>
+                            {/* 잔여 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold font-mono text-xs sm:text-sm">
+                              {remainingLeave}
+                            </td>
+                            {/* 관리 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-right text-xs sm:text-sm">
+                              {editingId === emp.id ? (
+                                <div className="flex justify-end gap-1">
+                                   <button 
+                                    onClick={() => handleSaveEdit(emp.id)}
+                                    className="text-white hover:bg-blue-700 p-1 sm:p-1.5 bg-blue-600 rounded-lg shadow-sm"
+                                  >
+                                    <Save size={10} className="sm:w-[14px] sm:h-[14px]" />
+                                  </button>
+                                  <button 
+                                    onClick={() => setEditingId(null)}
+                                    className="text-slate-400 hover:text-slate-600 p-1 sm:p-1.5 bg-slate-100 rounded-lg text-xs"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex justify-end gap-2">
+                                  <button 
+                                    onClick={() => {
+                                      setEditingId(emp.id);
+                                      setEditValues(emp);
+                                    }}
+                                    className="text-xs text-blue-600 hover:text-blue-700 underline font-medium"
+                                  >
+                                    수정
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      }
+
                       return (
                         <tr 
                           key={`${emp.id}-${idx}`} 

@@ -107,57 +107,47 @@ const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number): 
 
 const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
   const leaveUsageMap = new Map<string, number>();
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return leaveUsageMap;
-  }
-
+  const LEAVE_SHEET_ID = '1fsypp6-z5wZ73GhzVNu8FE8EtmVYgv7LVuRzHIaSUUA';
+  
   try {
-    const { data: records, error } = await supabase
-      .from('attendance_records')
-      .select('sap_id, type, use_days, status');
+    const targetUrl = `https://docs.google.com/spreadsheets/d/${LEAVE_SHEET_ID}/export?format=csv`;
+    const res = await fetch(targetUrl);
+    if (!res.ok) throw new Error(`HTTP error fetching leave sheet: ${res.status}`);
+    
+    const text = await res.text();
+    const lines = text.split(/\r?\n/);
+    if (lines.length <= 1) return leaveUsageMap;
 
-    if (error) throw error;
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      const row = parseCSVLine(line);
+      // Row fields index breakdown:
+      // 4: 사용일수, 8: ERP사번, 9: 근태항목, 10: 근태구분, 11: 상태
+      if (row.length < 12) continue;
 
-    if (records) {
-      records.forEach((rec: any) => {
-        const sapId = rec.sap_id?.trim();
-        const type = rec.type?.trim();
-        const status = rec.status?.trim();
-        
-        // 1. 반려되지 않은 모든 신청 건을 포함하여 상태 불일치 방지
-        const isApproved = status !== '반려' && status !== '반려종결';
-        
-        // 2. 연차 소진에 해당하는 타입(연차, 반차 등)을 유연하게 매핑
-        const isAnnualLeave = type && (
-          type.includes('연차') || 
-          type.includes('반차') || 
-          type.includes('휴가')
-        ) && !type.includes('대체') 
-          && !type.includes('보상') 
-          && !type.includes('경조') 
-          && !type.includes('출산')
-          && !type.includes('공가')
-          && !type.includes('병가');
+      const useDaysStr = row[4];
+      const sapId = (row[8] || '').trim().toLowerCase();
+      const category = (row[9] || '').trim();
+      const type = (row[10] || '').trim();
+      const status = (row[11] || '').trim();
 
-        if (sapId && isApproved && isAnnualLeave) {
-          // 3. use_days 누락 시 폴백 연산
-          let useDays = parseFloat(rec.use_days);
-          if (isNaN(useDays) || useDays <= 0) {
-            useDays = (type.includes('반차') || type.includes('0.5')) ? 0.5 : 1;
-          }
-          
-          // 4. 사번 대소문자 미스매칭 원천 차단 (소문자화하여 키 설정)
-          const key = sapId.toLowerCase();
-          const currentSum = leaveUsageMap.get(key) || 0;
-          leaveUsageMap.set(key, currentSum + useDays);
+      if (
+        sapId &&
+        category === '법정휴가' &&
+        (type === '연차' || type === '오전반차' || type === '오후반차') &&
+        status === '결재종결'
+      ) {
+        const useDays = parseFloat(useDaysStr);
+        if (!isNaN(useDays)) {
+          const currentSum = leaveUsageMap.get(sapId) || 0;
+          leaveUsageMap.set(sapId, currentSum + useDays);
         }
-      });
+      }
     }
   } catch (err) {
-    console.error('Failed to fetch attendance_records for leave aggregation:', err);
+    console.error('Failed to fetch and parse attendance sheet from Google CSV:', err);
   }
   return leaveUsageMap;
 };
@@ -291,11 +281,18 @@ export const fetchEmployeesFromSheets = async (
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase credentials not set. Falling back to local storage.');
-    const local = localStorage.getItem('hr_employees');
-    if (local) return JSON.parse(local);
-    localStorage.setItem('hr_employees', JSON.stringify(MOCK_EMPLOYEES));
-    return MOCK_EMPLOYEES;
+    console.warn('Supabase credentials not set. Fetching directly from Google Sheets with localStorage fallback.');
+    try {
+      const list = await syncGoogleSheetsToSupabase();
+      const mergedList = await mergeLeaveUsage(list);
+      localStorage.setItem('hr_employees', JSON.stringify(mergedList));
+      return mergedList;
+    } catch (error) {
+      console.error('Failed direct Sheets fetch fallback:', error);
+      const local = localStorage.getItem('hr_employees');
+      if (local) return JSON.parse(local);
+      return MOCK_EMPLOYEES;
+    }
   }
 
   try {

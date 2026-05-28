@@ -652,7 +652,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">직급</th>
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px] text-xs sm:text-sm">성명</th>
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">입사일</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">발생(회계년도)</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">발생</th>
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">사용</th>
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">잔여</th>
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm">관리</th>

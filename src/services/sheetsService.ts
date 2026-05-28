@@ -128,6 +128,10 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const probationStatus = existing ? existing.probation_status : undefined;
       const status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
       const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
+      
+      const usedLeave = existing && existing.used_leave !== null && existing.used_leave !== undefined
+        ? parseFloat(existing.used_leave)
+        : (isNaN(parseFloat(row[11])) ? 0 : parseFloat(row[11]));
 
       const baseEmployee: Employee = {
         id: id,
@@ -141,8 +145,8 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
         duration: row[8] || '',
         gender: (genderVal === '여' ? '여' : '남') as any,
         totalLeave: isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]),
-        usedLeave: isNaN(parseFloat(row[11])) ? 0 : parseFloat(row[11]),
-        remainingLeave: isNaN(parseFloat(row[12])) ? 0 : parseFloat(row[12]),
+        usedLeave: usedLeave,
+        remainingLeave: (isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10])) - usedLeave,
         residentNumber: row[14] || '',
         employmentType: employmentType,
         yearsInRank: yearsInRankVal,

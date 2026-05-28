@@ -106,6 +106,60 @@ const getPromotionStatus = (emp: Employee): '승진' | '미대상' => {
   return '미대상';
 };
 
+const calculateLeaveByHireDate = (hireDateStr: string, today: Date = new Date()): number => {
+  if (!hireDateStr) return 0;
+  const hireDate = new Date(hireDateStr.replace(/\./g, '/'));
+  if (isNaN(hireDate.getTime())) return 0;
+
+  // Calculate difference in months
+  const diffTime = today.getTime() - hireDate.getTime();
+  if (diffTime < 0) return 0;
+
+  const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+  
+  if (diffYears < 1) {
+    // Under 1 year: 1 day per completed month of service, max 11 days
+    const diffMonths = (today.getFullYear() - hireDate.getFullYear()) * 12 + today.getMonth() - hireDate.getMonth();
+    const dayAdjust = today.getDate() < hireDate.getDate() ? -1 : 0;
+    const completedMonths = Math.max(0, diffMonths + dayAdjust);
+    return Math.min(11, completedMonths);
+  } else {
+    // 1 year or more: 15 days + 1 day per 2 years after the 1st year (max 25)
+    const completedYears = Math.floor(diffYears);
+    const generated = 15 + Math.floor((completedYears - 1) / 2);
+    return Math.min(25, generated);
+  }
+};
+
+const calculateLeaveByFiscalYear = (hireDateStr: string, today: Date = new Date()): number => {
+  if (!hireDateStr) return 0;
+  const hireDate = new Date(hireDateStr.replace(/\./g, '/'));
+  if (isNaN(hireDate.getTime())) return 0;
+
+  const currentYear = today.getFullYear();
+  const hireYear = hireDate.getFullYear();
+
+  if (currentYear < hireYear) return 0;
+
+  if (currentYear === hireYear) {
+    // Hired in the current year: 1 day per completed month of service, up to 11 days
+    const diffMonths = (today.getFullYear() - hireDate.getFullYear()) * 12 + today.getMonth() - hireDate.getMonth();
+    const dayAdjust = today.getDate() < hireDate.getDate() ? -1 : 0;
+    const completedMonths = Math.max(0, diffMonths + dayAdjust);
+    return Math.min(11, completedMonths);
+  } else if (currentYear === hireYear + 1) {
+    // First January 1st after hiring: prorated portion of 15 days
+    const monthsWorkedInFirstYear = 12 - hireDate.getMonth();
+    const prorated = 15 * (monthsWorkedInFirstYear / 12);
+    return parseFloat(prorated.toFixed(1));
+  } else {
+    // Subsequent January 1sts: full annual leave based on fiscal years of service
+    const fiscalYears = currentYear - hireYear;
+    const generated = 15 + Math.floor((fiscalYears - 1) / 2);
+    return Math.min(25, generated);
+  }
+};
+
 export const Dashboard = ({ token }: DashboardProps) => {
   const { tabId } = useParams();
   const navigate = useNavigate();
@@ -232,14 +286,14 @@ export const Dashboard = ({ token }: DashboardProps) => {
     const index = employees.findIndex(e => e.id === id);
     if (index === -1) return;
 
-    // Recalculate remaining leave
-    const total = editValues.totalLeave ?? employees[index].totalLeave ?? 0;
     const used = editValues.usedLeave ?? employees[index].usedLeave ?? 0;
+    const total = calculateLeaveByHireDate(employees[index].hireDate);
     const remaining = total - used;
 
     const updatedEmployee = { 
       ...employees[index], 
       ...editValues,
+      totalLeave: total,
       remainingLeave: remaining
     };
     
@@ -592,13 +646,15 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     )}
                     <th className={cn(
                       "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                      activeTab === 'attendance' ? "hidden lg:table-cell" : "hidden sm:table-cell"
+                      activeTab === 'attendance' ? "table-cell" : "hidden sm:table-cell"
                     )}>입사일</th>
                     {activeTab === 'attendance' ? (
                       <>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">발생</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">발생 (입사일)</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">발생 (회계년도)</th>
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">사용</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">잔여</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">잔여 (입사일)</th>
+                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">잔여 (회계년도)</th>
                       </>
                     ) : (
                       <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">상태</th>
@@ -783,30 +839,28 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       )}>{emp.hireDate}</td>
                       {activeTab === 'attendance' ? (
                         <>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center">
-                            {editingId === emp.id ? (
-                              <input 
-                                type="number"
-                                className="border border-slate-200 rounded px-1 py-0.5 w-8 sm:w-16 text-center text-[10px] sm:text-sm"
-                                value={editValues.totalLeave ?? emp.totalLeave}
-                                onChange={(e) => setEditValues({ ...editValues, totalLeave: parseFloat(e.target.value) })}
-                              />
-                            ) : (emp.totalLeave || 0)}
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650">
+                            {calculateLeaveByHireDate(emp.hireDate)}
                           </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-medium">
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650">
+                            {calculateLeaveByFiscalYear(emp.hireDate)}
+                          </td>
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-medium font-mono">
                             {editingId === emp.id ? (
                               <input 
                                 type="number"
-                                className="border border-slate-200 rounded px-1 py-0.5 w-8 sm:w-16 text-center text-[10px] sm:text-sm"
+                                step="any"
+                                className="border border-slate-200 rounded px-1 py-0.5 w-8 sm:w-16 text-center text-[10px] sm:text-sm focus:bg-white"
                                 value={editValues.usedLeave ?? emp.usedLeave}
                                 onChange={(e) => setEditValues({ ...editValues, usedLeave: parseFloat(e.target.value) })}
                               />
                             ) : (emp.usedLeave || 0)}
                           </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold">
-                             {(editingId === emp.id) ? (
-                               (editValues.totalLeave ?? emp.totalLeave ?? 0) - (editValues.usedLeave ?? emp.usedLeave ?? 0)
-                             ) : (emp.remainingLeave || 0)}
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold font-mono">
+                            {calculateLeaveByHireDate(emp.hireDate) - (editingId === emp.id ? (editValues.usedLeave ?? emp.usedLeave ?? 0) : (emp.usedLeave || 0))}
+                          </td>
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-violet-600 font-bold font-mono">
+                            {calculateLeaveByFiscalYear(emp.hireDate) - (editingId === emp.id ? (editValues.usedLeave ?? emp.usedLeave ?? 0) : (emp.usedLeave || 0))}
                           </td>
                         </>
                       ) : (

@@ -76,6 +76,35 @@ const mapEmployeeToDb = (emp: Employee): any => ({
   remarks_memo: emp.remarksMemo || '',
 });
 
+const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number): number => {
+  if (!hireDateStr) return sheetTotalLeave;
+  
+  const normalizedDateStr = hireDateStr.replace(/\./g, '/');
+  const hireDate = new Date(normalizedDateStr);
+  if (isNaN(hireDate.getTime())) return sheetTotalLeave;
+
+  const today = new Date();
+  const hireYear = hireDate.getFullYear();
+
+  const diffYears = today.getFullYear() - hireDate.getFullYear();
+  const diffMonths = diffYears * 12 + today.getMonth() - hireDate.getMonth();
+  const dayAdjust = today.getDate() < hireDate.getDate() ? -1 : 0;
+  const completedMonths = Math.max(0, diffMonths + dayAdjust);
+
+  // 1. 2026년도 입사자: 1개월 만근 시마다 +1일 (최대 11일)
+  if (hireYear === 2026) {
+    return Math.min(11, completedMonths);
+  }
+
+  // 2. 2025년도 입사자 중 1년 미만인 자 (completedMonths < 12)
+  if (hireYear === 2025 && completedMonths < 12) {
+    return Math.min(11, completedMonths);
+  }
+
+  // 3. 그 외 (2025년도 중 1년 이상인 자, 2024년도 및 그 전 입사자): 구글 시트 값 그대로 사용
+  return sheetTotalLeave;
+};
+
 const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
   const leaveUsageMap = new Map<string, number>();
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -116,9 +145,12 @@ const mergeLeaveUsage = async (employees: Employee[]): Promise<Employee[]> => {
   const leaveUsageMap = await getLeaveUsageMap();
   return employees.map(emp => {
     const realUsedLeave = leaveUsageMap.get(emp.id) || 0;
-    const remainingLeave = (emp.totalLeave || 0) - realUsedLeave;
+    // Fallback/merge 시에도 실시간 오늘 일자에 맞춰 1년 미만 입사자의 발생 연차가 dynamic하게 변하므로 계산을 씌워줍니다.
+    const calculatedTotal = calculateGeneratedLeave(emp.hireDate, emp.totalLeave);
+    const remainingLeave = calculatedTotal - realUsedLeave;
     return {
       ...emp,
+      totalLeave: calculatedTotal,
       usedLeave: realUsedLeave,
       remainingLeave: remainingLeave
     };
@@ -181,6 +213,8 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
       
       const usedLeave = leaveUsageMap.get(id) || 0;
+      const sheetTotalLeave = isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]);
+      const totalLeave = calculateGeneratedLeave(row[5] || '', sheetTotalLeave);
 
       const baseEmployee: Employee = {
         id: id,
@@ -193,9 +227,9 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
         status: status,
         duration: row[8] || '',
         gender: (genderVal === '여' ? '여' : '남') as any,
-        totalLeave: isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]),
+        totalLeave: totalLeave,
         usedLeave: usedLeave,
-        remainingLeave: (isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10])) - usedLeave,
+        remainingLeave: totalLeave - usedLeave,
         residentNumber: row[14] || '',
         employmentType: employmentType,
         yearsInRank: yearsInRankVal,

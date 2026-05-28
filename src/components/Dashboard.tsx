@@ -160,6 +160,34 @@ const calculateLeaveByFiscalYear = (hireDateStr: string, today: Date = new Date(
   }
 };
 
+const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number, today: Date = new Date()): number => {
+  if (!hireDateStr) return sheetTotalLeave;
+  
+  const normalizedDateStr = hireDateStr.replace(/\./g, '/');
+  const hireDate = new Date(normalizedDateStr);
+  if (isNaN(hireDate.getTime())) return sheetTotalLeave;
+
+  const hireYear = hireDate.getFullYear();
+
+  const diffYears = today.getFullYear() - hireDate.getFullYear();
+  const diffMonths = diffYears * 12 + today.getMonth() - hireDate.getMonth();
+  const dayAdjust = today.getDate() < hireDate.getDate() ? -1 : 0;
+  const completedMonths = Math.max(0, diffMonths + dayAdjust);
+
+  // 1. 2026년도 입사자: 1개월 만근 시마다 +1일 (최대 11일)
+  if (hireYear === 2026) {
+    return Math.min(11, completedMonths);
+  }
+
+  // 2. 2025년도 입사자 중 1년 미만인 자 (completedMonths < 12)
+  if (hireYear === 2025 && completedMonths < 12) {
+    return Math.min(11, completedMonths);
+  }
+
+  // 3. 그 외 (2025년도 중 1년 이상인 자, 2024년도 및 그 전 입사자): 구글 시트 값 그대로 사용
+  return sheetTotalLeave;
+};
+
 export const Dashboard = ({ token }: DashboardProps) => {
   const { tabId } = useParams();
   const navigate = useNavigate();
@@ -287,7 +315,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     if (index === -1) return;
 
     const used = editValues.usedLeave ?? employees[index].usedLeave ?? 0;
-    const total = calculateLeaveByFiscalYear(employees[index].hireDate);
+    const total = calculateGeneratedLeave(employees[index].hireDate, employees[index].totalLeave);
     const remaining = total - used;
 
     const updatedEmployee = { 
@@ -686,9 +714,9 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       const isPromoted = activeTab === 'status' && getPromotionStatus(emp) === '승진';
 
                       if (activeTab === 'attendance') {
-                        const leaveFiscal = calculateLeaveByFiscalYear(emp.hireDate);
+                        const totalLeave = emp.totalLeave || 0;
                         const usedLeave = emp.usedLeave || 0;
-                        const remainingLeave = leaveFiscal - usedLeave;
+                        const remainingLeave = emp.remainingLeave || 0;
 
                         return (
                           <tr 
@@ -735,9 +763,9 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 />
                               ) : emp.hireDate}
                             </td>
-                            {/* 발생(회계년도) */}
+                            {/* 발생 */}
                             <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650 text-xs sm:text-sm">
-                              {leaveFiscal}
+                              {totalLeave}
                             </td>
                             {/* 사용 */}
                             <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold font-mono text-xs sm:text-sm">

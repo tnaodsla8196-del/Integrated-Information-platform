@@ -212,6 +212,47 @@ export const Dashboard = ({ token }: DashboardProps) => {
   const [editValues, setEditValues] = useState<Partial<Employee>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [promotionFilter, setPromotionFilter] = useState<'all' | '대상' | '제외' | '완료' | '미대상'>('all');
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+
+  useEffect(() => {
+    setSortConfig(null);
+  }, [activeTab]);
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortableHeader = (label: string, key: string, alignment: 'left' | 'center' | 'right' = 'left', className = '') => {
+    const isSorted = sortConfig && sortConfig.key === key;
+    const direction = isSorted ? sortConfig.direction : null;
+    
+    return (
+      <th 
+        onClick={() => requestSort(key)}
+        className={cn(
+          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 cursor-pointer hover:bg-slate-100/70 hover:text-slate-700 transition-colors select-none",
+          alignment === 'center' && "text-center",
+          alignment === 'right' && "text-right",
+          className
+        )}
+      >
+        <div className={cn(
+          "inline-flex items-center gap-1",
+          alignment === 'center' && "justify-center",
+          alignment === 'right' && "justify-end"
+        )}>
+          <span>{label}</span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            {direction === 'asc' ? '▲' : direction === 'desc' ? '▼' : '⇅'}
+          </span>
+        </div>
+      </th>
+    );
+  };
 
   const loadData = async (forceSync = false) => {
     setIsSyncing(true);
@@ -651,45 +692,32 @@ export const Dashboard = ({ token }: DashboardProps) => {
                   <tr className="border-b border-slate-100 text-left">
                     {activeTab === 'attendance' ? (
                       <>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">팀명</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">직급</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px] text-xs sm:text-sm">성명</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">입사일</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">발생</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">사용</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">잔여</th>
+                        {renderSortableHeader('팀명', 'team', 'left', 'text-xs sm:text-sm')}
+                        {renderSortableHeader('직급', 'rank', 'left', 'text-xs sm:text-sm')}
+                        {renderSortableHeader('성명', 'name', 'left', 'min-w-[70px] text-xs sm:text-sm')}
+                        {renderSortableHeader('입사일', 'hireDate', 'left', 'text-xs sm:text-sm')}
+                        {renderSortableHeader('발생', 'totalLeave', 'center', 'text-xs sm:text-sm')}
+                        {renderSortableHeader('사용', 'usedLeave', 'center', 'text-xs sm:text-sm')}
+                        {renderSortableHeader('잔여', 'remainingLeave', 'center', 'text-xs sm:text-sm')}
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm">관리</th>
                       </>
                     ) : (
                       <>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px]">성명</th>
-                        <th className={cn(
-                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                          "hidden md:table-cell"
-                        )}>본부</th>
-                        <th className={cn(
-                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                          "table-cell"
-                        )}>팀명</th>
-                        <th className={cn(
-                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50",
-                          "table-cell"
-                        )}>직급</th>
-                        {activeTab === 'status' && (
-                          <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">연차</th>
-                        )}
-                        {activeTab === 'tenure' && (
-                          <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">재직기간</th>
-                        )}
+                        {renderSortableHeader('성명', 'name', 'left', 'min-w-[70px]')}
+                        {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell')}
+                        {renderSortableHeader('팀명', 'team', 'left', 'table-cell')}
+                        {renderSortableHeader('직급', 'rank', 'left', 'table-cell')}
+                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'hidden sm:table-cell')}
+                        {activeTab === 'tenure' && renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell')}
                         {activeTab === 'status' && (
                           <>
-                            <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">형태</th>
-                            <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">승진 여부</th>
-                            <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">특이사항</th>
+                            {renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell')}
+                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'hidden sm:table-cell')}
+                            {renderSortableHeader('특이사항', 'remarksType', 'left', 'hidden sm:table-cell')}
                           </>
                         )}
-                        <th className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">입사일</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">상태</th>
+                        {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell')}
+                        {renderSortableHeader('상태', 'status', 'center')}
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
                       </>
                     )}
@@ -698,20 +726,85 @@ export const Dashboard = ({ token }: DashboardProps) => {
                 <tbody>
                   {filteredEmployees
                     .sort((a, b) => {
-                      if (a.team !== b.team) return a.team.localeCompare(b.team);
-                      if (activeTab !== 'attendance') {
-                        const rankPriority: Record<string, number> = {
-                          '대표이사': 0, '전무이사': 1, '전무': 1, '상무이사': 2, '상무': 2, '이사': 3,
-                          '센터장': 4, '수석매니저': 5, '책임매니저': 6, '선임매니저': 7, '매니저': 8
-                        };
-                        const getPrio = (r: string) => {
-                          if (rankPriority[r] !== undefined) return rankPriority[r];
-                          if (r.includes('(직영)')) return 10;
-                          return 100;
-                        };
-                        return getPrio(a.rank) - getPrio(b.rank);
+                      const rankPriority: Record<string, number> = {
+                        '대표이사': 0, '전무이사': 1, '전무': 1, '상무이사': 2, '상무': 2, '이사': 3,
+                        '센터장': 4, '부센터장': 4.5, '수석매니저': 5, '책임매니저': 6, '선임매니저': 7, '매니저': 8
+                      };
+                      const getPrio = (r: string) => {
+                        if (rankPriority[r] !== undefined) return rankPriority[r];
+                        if (r.includes('(직영)')) return 10;
+                        return 100;
+                      };
+
+                      if (sortConfig) {
+                        const { key, direction } = sortConfig;
+                        let comparison = 0;
+
+                        if (key === 'team') {
+                          comparison = a.team.localeCompare(b.team);
+                        } else if (key === 'rank') {
+                          comparison = getPrio(a.rank) - getPrio(b.rank);
+                        } else if (key === 'name') {
+                          comparison = a.name.localeCompare(b.name);
+                        } else if (key === 'hq') {
+                          comparison = a.hq.localeCompare(b.hq);
+                        } else if (key === 'hireDate') {
+                          comparison = a.hireDate.localeCompare(b.hireDate);
+                        } else if (key === 'status') {
+                          comparison = a.status.localeCompare(b.status);
+                        } else if (key === 'employmentType') {
+                          comparison = (a.employmentType || '').localeCompare(b.employmentType || '');
+                        } else if (key === 'totalLeave') {
+                          comparison = (a.totalLeave || 0) - (b.totalLeave || 0);
+                        } else if (key === 'usedLeave') {
+                          comparison = (a.usedLeave || 0) - (b.usedLeave || 0);
+                        } else if (key === 'remainingLeave') {
+                          comparison = (a.remainingLeave || 0) - (b.remainingLeave || 0);
+                        } else if (key === 'yearsInRank') {
+                          comparison = getYearsFromPColumn(a.yearsInRank) - getYearsFromPColumn(b.yearsInRank);
+                        } else if (key === 'duration') {
+                          const getDurationMonths = (dur?: string) => {
+                            if (!dur) return 0;
+                            const y = dur.match(/(\d+)년/);
+                            const m = dur.match(/(\d+)개월/);
+                            return (y ? parseInt(y[1]) : 0) * 12 + (m ? parseInt(m[1]) : 0);
+                          };
+                          comparison = getDurationMonths(a.duration) - getDurationMonths(b.duration);
+                        } else if (key === 'promotionStatus') {
+                          const getPromoPriority = (emp: Employee) => {
+                            const status = getPromotionStatus(emp);
+                            if (status === '대상') return 0;
+                            if (status === '완료') return 1;
+                            if (status === '제외') return 2;
+                            return 3;
+                          };
+                          const pA = getPromoPriority(a);
+                          const pB = getPromoPriority(b);
+                          if (pA !== pB) {
+                            comparison = pA - pB;
+                          } else if (pA === 0) {
+                            const getPromoRankPrio = (rankStr: string) => {
+                              if (rankStr.includes('매니저') && !rankStr.includes('선임') && !rankStr.includes('책임') && !rankStr.includes('수석')) return 0;
+                              if (rankStr.includes('선임매니저')) return 1;
+                              if (rankStr.includes('책임매니저')) return 2;
+                              return 3;
+                            };
+                            comparison = getPromoRankPrio(a.rank) - getPromoRankPrio(b.rank);
+                          }
+                        } else if (key === 'remarksType') {
+                          comparison = (a.remarksType || '').localeCompare(b.remarksType || '');
+                        }
+
+                        if (comparison !== 0) {
+                          return direction === 'asc' ? comparison : -comparison;
+                        }
                       }
-                      return 0;
+
+                      // Default sorting fallback: team asc, then rank priority asc, then name asc
+                      if (a.team !== b.team) return a.team.localeCompare(b.team);
+                      const rankDiff = getPrio(a.rank) - getPrio(b.rank);
+                      if (rankDiff !== 0) return rankDiff;
+                      return a.name.localeCompare(b.name);
                     })
                     .map((emp, idx) => {
                       const isPromoted = activeTab === 'status' && getPromotionStatus(emp) === '대상';

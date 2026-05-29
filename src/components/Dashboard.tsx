@@ -85,8 +85,10 @@ const formatTenureYear = (yearsInRank?: string): string => {
   return `${num}년차`;
 };
 
-const getPromotionStatus = (emp: Employee): '승진' | '미대상' => {
-  if (emp.promotionStatus) return emp.promotionStatus;
+const getPromotionStatus = (emp: Employee): '대상' | '제외' | '완료' | '미대상' => {
+  let status = emp.promotionStatus;
+  if (status === '승진') status = '대상'; // Legacy migration
+  if (status) return status as any;
   
   const years = getYearsFromPColumn(emp.yearsInRank);
   const rank = emp.rank || '';
@@ -95,13 +97,13 @@ const getPromotionStatus = (emp: Employee): '승진' | '미대상' => {
     return '미대상';
   }
   if (rank.includes('책임매니저')) {
-    return years >= 6 ? '승진' : '미대상';
+    return years >= 6 ? '대상' : '미대상';
   }
   if (rank.includes('선임매니저')) {
-    return years >= 6 ? '승진' : '미대상';
+    return years >= 6 ? '대상' : '미대상';
   }
   if (rank.includes('매니저')) {
-    return years >= 3 ? '승진' : '미대상';
+    return years >= 3 ? '대상' : '미대상';
   }
   return '미대상';
 };
@@ -209,7 +211,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<Employee>>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [promotionFilter, setPromotionFilter] = useState<'all' | 'promoted' | 'none'>('all');
+  const [promotionFilter, setPromotionFilter] = useState<'all' | '대상' | '제외' | '완료' | '미대상'>('all');
 
   const loadData = async (forceSync = false) => {
     setIsSyncing(true);
@@ -251,7 +253,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     }
   };
 
-  const handlePromotionStatusChange = async (emp: Employee, newStatus: '승진' | '미대상') => {
+  const handlePromotionStatusChange = async (emp: Employee, newStatus: '대상' | '제외' | '완료' | '미대상') => {
     const index = employees.findIndex(e => e.id === emp.id);
     if (index === -1) return;
 
@@ -403,8 +405,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     // Promotion filter (only applicable for status tab)
     if (activeTab === 'status' && promotionFilter !== 'all') {
       const promoStatus = getPromotionStatus(e);
-      if (promotionFilter === 'promoted' && promoStatus !== '승진') return false;
-      if (promotionFilter === 'none' && promoStatus !== '미대상') return false;
+      if (promoStatus !== promotionFilter) return false;
     }
     
     return true;
@@ -604,7 +605,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                   </h2>
                   {activeTab === 'status' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 shadow-sm shrink-0">
-                      승진 대상: {employees.filter(e => e.status !== '퇴직' && getPromotionStatus(e) === '승진').length}명
+                      승진 대상: {employees.filter(e => e.status !== '퇴직' && getPromotionStatus(e) === '대상').length}명
                     </span>
                   )}
                 </div>
@@ -626,8 +627,10 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 outline-blue-500 focus:bg-white transition-all shadow-sm cursor-pointer"
                     >
                       <option value="all">승진여부: 전체</option>
-                      <option value="promoted">승진 대상자</option>
-                      <option value="none">미대상자</option>
+                      <option value="대상">대상</option>
+                      <option value="제외">제외</option>
+                      <option value="완료">완료</option>
+                      <option value="미대상">미대상</option>
                     </select>
                   )}
                   {activeTab === 'status' && (
@@ -711,7 +714,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       return 0;
                     })
                     .map((emp, idx) => {
-                      const isPromoted = activeTab === 'status' && getPromotionStatus(emp) === '승진';
+                      const isPromoted = activeTab === 'status' && getPromotionStatus(emp) === '대상';
 
                       if (activeTab === 'attendance') {
                         const totalLeave = emp.totalLeave || 0;
@@ -903,18 +906,35 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       )}
                       {activeTab === 'status' && (
                         <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-center">
-                          <select
-                            className={`border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer ${
-                              getPromotionStatus(emp) === '승진'
-                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                : "bg-slate-50 text-slate-600 border-slate-200"
-                            }`}
-                            value={getPromotionStatus(emp)}
-                            onChange={(e) => handlePromotionStatusChange(emp, e.target.value as any)}
-                          >
-                            <option value="승진">승진</option>
-                            <option value="미대상">미대상</option>
-                          </select>
+                          {editingId === emp.id ? (
+                            <select
+                              className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white cursor-pointer"
+                              value={editValues.promotionStatus || emp.promotionStatus || getPromotionStatus(emp)}
+                              onChange={(e) => setEditValues({ ...editValues, promotionStatus: e.target.value as any })}
+                            >
+                              <option value="대상">대상</option>
+                              <option value="제외">제외</option>
+                              <option value="완료">완료</option>
+                              <option value="미대상">미대상</option>
+                            </select>
+                          ) : (
+                            <select
+                              className={cn(
+                                "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
+                                getPromotionStatus(emp) === '대상' && "bg-blue-50 text-blue-700 border-blue-200",
+                                getPromotionStatus(emp) === '완료' && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                                getPromotionStatus(emp) === '제외' && "bg-rose-50 text-rose-700 border-rose-200",
+                                getPromotionStatus(emp) === '미대상' && "bg-slate-50 text-slate-600 border-slate-200"
+                              )}
+                              value={getPromotionStatus(emp)}
+                              onChange={(e) => handlePromotionStatusChange(emp, e.target.value as any)}
+                            >
+                              <option value="대상">대상</option>
+                              <option value="제외">제외</option>
+                              <option value="완료">완료</option>
+                              <option value="미대상">미대상</option>
+                            </select>
+                          )}
                         </td>
                       )}
                       {activeTab === 'status' && (

@@ -196,6 +196,26 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       } catch (err) {
         console.error('Failed to fetch existing records for merge:', err);
       }
+    } else {
+      // Fallback: load existing edits from localStorage to prevent data reset
+      try {
+        const local = localStorage.getItem('hr_employees');
+        if (local) {
+          const list = JSON.parse(local) as Employee[];
+          list.forEach(emp => {
+            existingMap.set(emp.id, {
+              remarks_type: emp.remarksType,
+              remarks_memo: emp.remarksMemo,
+              promotion_status: emp.promotionStatus,
+              probation_status: emp.probationStatus,
+              status: emp.status,
+              employment_type: emp.employmentType,
+            });
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load local storage for merge:', err);
+      }
     }
 
     const leaveUsageMap = await getLeaveUsageMap();

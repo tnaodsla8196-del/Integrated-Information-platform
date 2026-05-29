@@ -20,7 +20,7 @@ export interface Employee {
   duration?: string;
   residentNumber?: string;
   probationStatus?: '수습' | '수습종료';
-  promotionStatus?: '승진' | '미대상';
+  promotionStatus?: '대상' | '제외' | '완료' | '미대상' | '승진' | string;
   yearsInRank?: string;
   remarksType?: '선택 없음' | '출산휴가' | '육아휴직' | '기타';
   remarksMemo?: string;

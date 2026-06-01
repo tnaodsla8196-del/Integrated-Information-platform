@@ -66,10 +66,7 @@ const getYearsOfService = (hireDateStr: string): number => {
 
 const formatDuration = (durationStr?: string): string => {
   if (!durationStr) return '';
-  return durationStr
-    .replace(/^0+/, '')
-    .replace(/년0+/, '년 ')
-    .replace(/년/, '년 ');
+  return durationStr;
 };
 
 const getYearsFromPColumn = (yearsStr?: string): number => {
@@ -336,11 +333,17 @@ export const Dashboard = ({ token }: DashboardProps) => {
   const totalTotalLeave = employees.reduce((acc, e) => acc + (e.totalLeave || 0), 0);
   const leaveUsageRate = Math.round((totalUsedLeave / (totalTotalLeave || 1)) * 100);
 
+  const activeEmployees = employees.filter(e => e.status === '재직');
+  const totalTenureYears = activeEmployees.reduce((acc, e) => acc + getYearsOfService(e.hireDate), 0);
+  const averageTenure = activeEmployees.length > 0 
+    ? parseFloat((totalTenureYears / activeEmployees.length).toFixed(1)) 
+    : 0;
+
   const stats: StatCardProps[] = [
     { title: '전체 인원', value: activeCount, unit: '명', trend: { label: '전월 대비', value: 0, isUp: true } },
     { title: '이번 달 입사', value: thisMonthHires, unit: '명', footer: { label: '이번 달 누적', value: `${thisMonthHires}건` } },
     { title: '이번 달 퇴사', value: employees.filter(e => e.status === '퇴직').length, unit: '명', trend: { label: 'YTD', value: 0, isUp: false } },
-    { title: '평균 근속', value: 3.2, unit: '년' },
+    { title: '평균 근속', value: averageTenure, unit: '년' },
     { title: '전체 연차 사용률', value: leaveUsageRate, unit: '%', trend: { label: '전체 소진율', value: leaveUsageRate, isUp: true } },
   ];
 

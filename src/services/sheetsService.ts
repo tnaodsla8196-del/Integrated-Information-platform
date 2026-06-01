@@ -105,6 +105,42 @@ const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number): 
   return sheetTotalLeave;
 };
 
+const calculateDuration = (hireDateStr: string, resignationDateStr?: string, status?: string): string => {
+  if (!hireDateStr) return '';
+  const hireDate = new Date(hireDateStr.replace(/\./g, '/'));
+  if (isNaN(hireDate.getTime())) return '';
+
+  let endDate = new Date();
+  if (status === '퇴직' && resignationDateStr) {
+    const resignationDate = new Date(resignationDateStr.replace(/\./g, '/'));
+    if (!isNaN(resignationDate.getTime())) {
+      endDate = resignationDate;
+    }
+  }
+
+  let years = endDate.getFullYear() - hireDate.getFullYear();
+  let months = endDate.getMonth() - hireDate.getMonth();
+  let days = endDate.getDate() - hireDate.getDate();
+
+  if (days < 0) {
+    months -= 1;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  if (years < 0) {
+    years = 0;
+    months = 0;
+  }
+
+  const yyyy = String(years).padStart(2, '0');
+  const mm = String(months).padStart(2, '0');
+  return `${yyyy}년 ${mm}개월`;
+};
+
 const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
   const leaveUsageMap = new Map<string, number>();
   const LEAVE_SHEET_ID = '1fsypp6-z5wZ73GhzVNu8FE8EtmVYgv7LVuRzHIaSUUA';
@@ -276,7 +312,7 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
         hireDate: row[5] || '',
         resignationDate: row[6] || '',
         status: status,
-        duration: row[8] || '',
+        duration: calculateDuration(row[5] || '', row[6] || '', status),
         gender: (genderVal === '여' ? '여' : '남') as any,
         totalLeave: totalLeave,
         usedLeave: usedLeave,

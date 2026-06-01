@@ -21,6 +21,7 @@ const TABS = [
   { id: 'tenure', label: '재직기간', icon: Calendar },
   { id: 'hiring', label: '채용현황', icon: Target },
   { id: 'leaver', label: '퇴사자', icon: UserMinus },
+  { id: 'expected-leaver', label: '퇴사예정', icon: Clipboard },
   { id: 'org', label: '조직/직급', icon: TrendingUp },
   { id: 'attendance', label: '근태/연차', icon: Clock },
 ];
@@ -188,6 +189,18 @@ const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number, t
 
   // 3. 그 외 (2025년도 중 1년 이상인 자, 2024년도 및 그 전 입사자): 구글 시트 값 그대로 사용
   return sheetTotalLeave;
+};
+
+const isFutureDate = (dateStr?: string): boolean => {
+  if (!dateStr) return false;
+  const normalizedDateStr = dateStr.replace(/\./g, '/').trim();
+  const date = new Date(normalizedDateStr);
+  if (isNaN(date.getTime())) return false;
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+  return date > today;
 };
 
 export const Dashboard = ({ token }: DashboardProps) => {
@@ -427,6 +440,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
 
   const filteredEmployees = employees.filter(e => {
     // Tab filter
+    if (activeTab === 'expected-leaver' && !(e.status === '재직' && isFutureDate(e.resignationDate))) return false;
     if (activeTab === 'leaver' && e.status !== '퇴직') return false;
     if (activeTab === 'status' && e.status === '퇴직') return false;
     if (activeTab === 'tenure' && e.status === '퇴직') return false;
@@ -632,7 +646,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
           </div>
         )}
 
-        {(activeTab === 'status' || activeTab === 'tenure' || activeTab === 'leaver' || activeTab === 'attendance') && (
+        {(activeTab === 'status' || activeTab === 'tenure' || activeTab === 'leaver' || activeTab === 'expected-leaver' || activeTab === 'attendance') && (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -717,7 +731,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           </>
                         )}
                         {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell')}
-                        {activeTab === 'leaver' && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell')}
+                        {(activeTab === 'leaver' || activeTab === 'expected-leaver') && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell')}
                         {renderSortableHeader('상태', 'status', 'center')}
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
                       </>
@@ -1081,7 +1095,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         "px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-malgun text-[9px] sm:text-xs font-semibold",
                         activeTab === 'attendance' ? "hidden lg:table-cell" : "hidden sm:table-cell"
                       )}>{emp.hireDate}</td>
-                      {activeTab === 'leaver' && (
+                      {(activeTab === 'leaver' || activeTab === 'expected-leaver') && (
                         <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-mono text-[11px] sm:text-xs font-semibold">
                           {emp.resignationDate || '-'}
                         </td>
@@ -1125,13 +1139,23 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               <option value="퇴직">퇴직</option>
                             </select>
                           ) : (
-                            <span className={cn(
-                              "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold",
-                              emp.status === '재직' ? "bg-emerald-50 text-emerald-700" : 
-                              emp.status === '퇴직' ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"
-                            )}>
-                              {emp.status}
-                            </span>
+                            (() => {
+                              const isExpectedLeaver = emp.status === '재직' && isFutureDate(emp.resignationDate);
+                              return (
+                                <span className={cn(
+                                  "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold border",
+                                  isExpectedLeaver 
+                                    ? "bg-amber-50 text-amber-700 border-amber-200" 
+                                    : emp.status === '재직' 
+                                      ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+                                      : emp.status === '퇴직' 
+                                        ? "bg-rose-50 text-rose-700 border-rose-100" 
+                                        : "bg-amber-50 text-amber-700 border-amber-100"
+                                )}>
+                                  {isExpectedLeaver ? '퇴사예정' : emp.status}
+                                </span>
+                              );
+                            })()
                           )}
                         </td>
                       )}

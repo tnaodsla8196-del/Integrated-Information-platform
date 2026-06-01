@@ -240,8 +240,27 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const remarksMemo = existing ? existing.remarks_memo : '';
       const promotionStatus = existing ? existing.promotion_status : undefined;
       const probationStatus = existing ? existing.probation_status : undefined;
-      const hasResignationDate = !!(row[6] && row[6].trim());
-      const status = hasResignationDate ? '퇴직' : (existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직'));
+      const resignationDateStr = (row[6] || '').trim();
+      let status: EmploymentStatus = '재직';
+      
+      if (resignationDateStr) {
+        const normalizedDateStr = resignationDateStr.replace(/\./g, '/');
+        const resignationDate = new Date(normalizedDateStr);
+        if (!isNaN(resignationDate.getTime())) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          resignationDate.setHours(0, 0, 0, 0);
+          if (today >= resignationDate) {
+            status = '퇴직';
+          } else {
+            status = '재직';
+          }
+        } else {
+          status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
+        }
+      } else {
+        status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
+      }
       const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
       
       const usedLeave = leaveUsageMap.get(id.toLowerCase()) || 0;

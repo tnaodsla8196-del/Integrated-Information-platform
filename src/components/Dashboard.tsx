@@ -717,7 +717,8 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           </>
                         )}
                         {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell')}
-                        {activeTab === 'leaver' ? renderSortableHeader('퇴사일', 'resignationDate', 'center') : renderSortableHeader('상태', 'status', 'center')}
+                        {activeTab === 'leaver' && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell')}
+                        {renderSortableHeader('상태', 'status', 'center')}
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
                       </>
                     )}
@@ -1080,6 +1081,11 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         "px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-malgun text-[9px] sm:text-xs font-semibold",
                         activeTab === 'attendance' ? "hidden lg:table-cell" : "hidden sm:table-cell"
                       )}>{emp.hireDate}</td>
+                      {activeTab === 'leaver' && (
+                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-mono text-[11px] sm:text-xs font-semibold">
+                          {emp.resignationDate || '-'}
+                        </td>
+                      )}
                       {activeTab === 'attendance' ? (
                         <>
                           <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650">
@@ -1119,19 +1125,13 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               <option value="퇴직">퇴직</option>
                             </select>
                           ) : (
-                            activeTab === 'leaver' ? (
-                              <span className="text-slate-500 font-mono font-medium text-[11px] sm:text-xs">
-                                {emp.resignationDate || '-'}
-                              </span>
-                            ) : (
-                              <span className={cn(
-                                "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold",
-                                emp.status === '재직' ? "bg-emerald-50 text-emerald-700" : 
-                                emp.status === '퇴직' ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"
-                              )}>
-                                {emp.status}
-                              </span>
-                            )
+                            <span className={cn(
+                              "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold",
+                              emp.status === '재직' ? "bg-emerald-50 text-emerald-700" : 
+                              emp.status === '퇴직' ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"
+                            )}>
+                              {emp.status}
+                            </span>
                           )}
                         </td>
                       )}

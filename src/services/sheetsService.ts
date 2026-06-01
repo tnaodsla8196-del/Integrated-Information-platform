@@ -240,7 +240,8 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       const remarksMemo = existing ? existing.remarks_memo : '';
       const promotionStatus = existing ? existing.promotion_status : undefined;
       const probationStatus = existing ? existing.probation_status : undefined;
-      const status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
+      const hasResignationDate = !!(row[6] && row[6].trim());
+      const status = hasResignationDate ? '퇴직' : (existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직'));
       const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
       
       const usedLeave = leaveUsageMap.get(id.toLowerCase()) || 0;

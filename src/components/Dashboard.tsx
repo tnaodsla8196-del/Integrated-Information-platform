@@ -880,11 +880,11 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               ) : emp.hireDate}
                             </td>
                             {/* 발생 */}
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650 text-xs sm:text-sm">
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600 text-xs sm:text-sm">
                               {totalLeave}
                             </td>
                             {/* 사용 */}
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold font-mono text-xs sm:text-sm">
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold text-xs sm:text-sm">
                               {usedLeave}
                             </td>
                             {/* 잔여 */}
@@ -935,7 +935,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               : "hover:bg-slate-50/50"
                           }`}
                         >
-                      <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 min-w-[70px] text-[11px] sm:text-[14px]">
+                      <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 min-w-[70px]">
                         <div className="flex items-center gap-1.5">
                           {editingId === emp.id ? (
                             <input 
@@ -1095,37 +1095,37 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         </td>
                       )}
                       <td className={cn(
-                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-malgun text-[9px] sm:text-xs font-semibold",
+                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-semibold",
                         activeTab === 'attendance' ? "hidden lg:table-cell" : "hidden sm:table-cell"
                       )}>{emp.hireDate}</td>
                       {(activeTab === 'leaver' || activeTab === 'expected-leaver') && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-mono text-[11px] sm:text-xs font-semibold">
+                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold">
                           {emp.resignationDate || '-'}
                         </td>
                       )}
                       {activeTab === 'attendance' ? (
                         <>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650">
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600">
                             {calculateLeaveByHireDate(emp.hireDate)}
                           </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold font-mono text-slate-650">
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600">
                             {calculateLeaveByFiscalYear(emp.hireDate)}
                           </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-medium font-mono">
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold">
                             {editingId === emp.id ? (
                               <input 
                                 type="number"
                                 step="any"
-                                className="border border-slate-200 rounded px-1 py-0.5 w-8 sm:w-16 text-center text-[10px] sm:text-sm focus:bg-white"
+                                className="border border-slate-200 rounded px-1 py-0.5 w-8 sm:w-16 text-center text-xs focus:bg-white"
                                 value={editValues.usedLeave ?? emp.usedLeave}
                                 onChange={(e) => setEditValues({ ...editValues, usedLeave: parseFloat(e.target.value) })}
                               />
                             ) : (emp.usedLeave || 0)}
                           </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold font-mono">
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold">
                             {calculateLeaveByHireDate(emp.hireDate) - (editingId === emp.id ? (editValues.usedLeave ?? emp.usedLeave ?? 0) : (emp.usedLeave || 0))}
                           </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-violet-600 font-bold font-mono">
+                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-violet-600 font-bold">
                             {calculateLeaveByFiscalYear(emp.hireDate) - (editingId === emp.id ? (editValues.usedLeave ?? emp.usedLeave ?? 0) : (emp.usedLeave || 0))}
                           </td>
                         </>

@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", "Malgun Gothic", "맑은 고딕", ui-sans-serif, system-ui, sans-serif;
-  --font-malgun: "Malgun Gothic", "맑은 고딕", sans-serif;
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-malgun: "Pretendard", sans-serif;
   
   --color-brand-bg: #F8FAFC;
   --color-card-bg: #FFFFFF;
@@ -16,6 +16,7 @@
 @layer base {
   body {
     @apply bg-brand-bg text-text-main font-sans antialiased;
+    font-feature-settings: "tnum", "cv11"; /* 고정폭 숫자(Tabular Numbers) 및 가독성 옵션 기본 적용 */
   }
 }
 
@@ -25,12 +26,12 @@
   }
   
   .section-title {
-    @apply text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2;
+    @apply text-base font-bold text-slate-800 mb-4 flex items-center gap-2 tracking-tight;
   }
 
   .section-title::before {
     content: "";
-    @apply w-1 h-4 bg-blue-500 rounded-full inline-block;
+    @apply w-1.5 h-4 bg-blue-500 rounded-full inline-block;
   }
   
   .tab-item {

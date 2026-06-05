@@ -489,7 +489,12 @@ export const Dashboard = ({ token }: DashboardProps) => {
       {/* Simple Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">HR Insight Dashboard</h1>
+          <h1 
+            onClick={() => navigate('/dashboard')}
+            className="text-xl font-bold text-slate-900 tracking-tight cursor-pointer hover:text-blue-600 transition-colors inline-block"
+          >
+            HR Insight Dashboard
+          </h1>
           <p className="text-sm text-slate-500 mt-0.5">
             {now.getFullYear()}년 {now.getMonth() + 1}월 {now.getDate()}일 기준 · 실시간 연동 중
           </p>

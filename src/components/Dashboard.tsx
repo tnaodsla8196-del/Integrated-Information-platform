@@ -666,35 +666,34 @@ export const Dashboard = ({ token }: DashboardProps) => {
             animate={{ opacity: 1, y: 0 }}
             className="dashboard-card"
           >
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-                <div className="flex items-center gap-2 shrink-0">
-                  <h2 className="section-title mb-0">
-                    {TABS.find(t => t.id === activeTab)?.label} 상세 목록
-                  </h2>
-                  {activeTab === 'status' && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 shadow-sm shrink-0">
-                      승진 대상: {employees.filter(e => e.status !== '퇴직' && getPromotionStatus(e) === '대상').length}명
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                  <div className="relative flex-grow sm:flex-grow-0">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+              <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <h2 className="section-title mb-0 shrink-0">
+                  {TABS.find(t => t.id === activeTab)?.label} 상세 목록
+                </h2>
+                {activeTab === 'status' && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 shadow-sm shrink-0">
+                    승진 대상: {employees.filter(e => e.status !== '퇴직' && getPromotionStatus(e) === '대상').length}명
+                  </span>
+                )}
+                
+                <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 ml-0 lg:ml-2">
+                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
                     <input
                       type="text"
                       placeholder="이름, 본부, 팀 검색"
-                      className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-blue-500 w-full sm:w-64 focus:bg-white transition-all shadow-sm"
+                      className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-blue-500 w-full sm:w-60 focus:bg-white transition-all shadow-sm h-8"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                   {activeTab === 'attendance' && (
-                    <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shadow-sm shrink-0">
+                    <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shadow-sm shrink-0 h-8">
                       <button
                         onClick={() => setAttendanceStatusFilter('active')}
                         className={cn(
-                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer",
+                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer h-7 flex items-center",
                           attendanceStatusFilter === 'active'
                             ? "bg-white text-slate-800 shadow-sm"
                             : "text-slate-500 hover:text-slate-700"
@@ -705,7 +704,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       <button
                         onClick={() => setAttendanceStatusFilter('retired')}
                         className={cn(
-                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer",
+                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer h-7 flex items-center",
                           attendanceStatusFilter === 'retired'
                             ? "bg-white text-slate-800 shadow-sm"
                             : "text-slate-500 hover:text-slate-700"
@@ -716,7 +715,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       <button
                         onClick={() => setAttendanceStatusFilter('all')}
                         className={cn(
-                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer",
+                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer h-7 flex items-center",
                           attendanceStatusFilter === 'all'
                             ? "bg-white text-slate-800 shadow-sm"
                             : "text-slate-500 hover:text-slate-700"
@@ -730,7 +729,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     <select
                       value={promotionFilter}
                       onChange={(e) => setPromotionFilter(e.target.value as any)}
-                      className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 outline-blue-500 focus:bg-white transition-all shadow-sm cursor-pointer"
+                      className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 outline-blue-500 focus:bg-white transition-all shadow-sm cursor-pointer h-8"
                     >
                       <option value="all">승진여부: 전체</option>
                       <option value="대상">대상</option>
@@ -742,7 +741,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                   {activeTab === 'status' && (
                     <button 
                       onClick={handleResetAllStatus}
-                      className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-500 px-2.5 py-1.5 rounded-lg border border-slate-200 transition-colors shadow-sm cursor-pointer shrink-0"
+                      className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-500 px-2.5 rounded-lg border border-slate-200 transition-colors shadow-sm cursor-pointer shrink-0 h-8"
                     >
                       데이터 초기화
                     </button>
@@ -761,6 +760,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         {renderSortableHeader('직급', 'rank', 'left', 'text-xs sm:text-sm')}
                         {renderSortableHeader('성명', 'name', 'left', 'min-w-[70px] text-xs sm:text-sm')}
                         {renderSortableHeader('입사일', 'hireDate', 'left', 'text-xs sm:text-sm')}
+                        {renderSortableHeader('퇴사일', 'resignationDate', 'left', 'text-xs sm:text-sm')}
                         {renderSortableHeader('발생', 'totalLeave', 'center', 'text-xs sm:text-sm')}
                         {renderSortableHeader('사용', 'usedLeave', 'center', 'text-xs sm:text-sm')}
                         {renderSortableHeader('잔여', 'remainingLeave', 'center', 'text-xs sm:text-sm')}
@@ -937,6 +937,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                   onChange={(e) => setEditValues({ ...editValues, hireDate: e.target.value })}
                                 />
                               ) : emp.hireDate}
+                            </td>
+                            {/* 퇴사일 */}
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              {editingId === emp.id ? (
+                                <input 
+                                  className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
+                                  value={editValues.resignationDate || emp.resignationDate || ''}
+                                  onChange={(e) => setEditValues({ ...editValues, resignationDate: e.target.value })}
+                                />
+                              ) : (emp.resignationDate || '-')}
                             </td>
                             {/* 발생 */}
                             <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600 text-xs sm:text-sm">

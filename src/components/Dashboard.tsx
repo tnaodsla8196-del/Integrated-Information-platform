@@ -1,3 +1,4 @@
+// Refreshed build: 2026-06-05 UI improvements
 import { 
   Users, Target, UserMinus, Clock, Calendar, Clipboard,
   TrendingUp, RefreshCcw, ChevronRight, Loader2, Save, Search, Download

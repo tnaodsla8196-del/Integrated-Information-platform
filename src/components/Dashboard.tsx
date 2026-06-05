@@ -222,6 +222,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
   const [editValues, setEditValues] = useState<Partial<Employee>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [promotionFilter, setPromotionFilter] = useState<'all' | '대상' | '제외' | '완료' | '미대상'>('all');
+  const [attendanceStatusFilter, setAttendanceStatusFilter] = useState<'all' | 'active' | 'retired'>('active');
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   useEffect(() => {
@@ -448,6 +449,10 @@ export const Dashboard = ({ token }: DashboardProps) => {
     if (activeTab === 'status' && e.status === '퇴직') return false;
     if (activeTab === 'tenure' && e.status === '퇴직') return false;
     if (activeTab === 'hiring' && e.status === '퇴직') return false;
+    if (activeTab === 'attendance') {
+      if (attendanceStatusFilter === 'active' && e.status === '퇴직') return false;
+      if (attendanceStatusFilter === 'retired' && e.status !== '퇴직') return false;
+    }
     
     // Search filter
     if (searchTerm) {
@@ -678,6 +683,43 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
+                  {activeTab === 'attendance' && (
+                    <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shadow-sm shrink-0">
+                      <button
+                        onClick={() => setAttendanceStatusFilter('active')}
+                        className={cn(
+                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer",
+                          attendanceStatusFilter === 'active'
+                            ? "bg-white text-slate-800 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700"
+                        )}
+                      >
+                        재직자
+                      </button>
+                      <button
+                        onClick={() => setAttendanceStatusFilter('retired')}
+                        className={cn(
+                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer",
+                          attendanceStatusFilter === 'retired'
+                            ? "bg-white text-slate-800 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700"
+                        )}
+                      >
+                        퇴직자
+                      </button>
+                      <button
+                        onClick={() => setAttendanceStatusFilter('all')}
+                        className={cn(
+                          "px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold transition-all cursor-pointer",
+                          attendanceStatusFilter === 'all'
+                            ? "bg-white text-slate-800 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700"
+                        )}
+                      >
+                        전체
+                      </button>
+                    </div>
+                  )}
                   {activeTab === 'status' && (
                     <select
                       value={promotionFilter}
@@ -861,13 +903,24 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             </td>
                             {/* 성명 */}
                             <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 text-xs sm:text-sm">
-                              {editingId === emp.id ? (
-                                <input 
-                                  className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
-                                  value={editValues.name || emp.name}
-                                  onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
-                                />
-                              ) : emp.name}
+                              <div className="flex items-center gap-1.5">
+                                {editingId === emp.id ? (
+                                  <input 
+                                    className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
+                                    value={editValues.name || emp.name}
+                                    onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                                  />
+                                ) : (
+                                  <>
+                                    <span>{emp.name}</span>
+                                    {emp.status === '퇴직' && (
+                                      <span className="inline-flex items-center justify-center bg-rose-50 text-rose-600 border border-rose-100 text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
+                                        퇴직
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
                             </td>
                             {/* 입사일 */}
                             <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">

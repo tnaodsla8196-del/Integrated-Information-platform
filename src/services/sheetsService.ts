@@ -160,14 +160,14 @@ const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
       
       const row = parseCSVLine(line);
       // Row fields index breakdown:
-      // 4: 사용일수, 8: ERP사번, 9: 근태항목, 10: 근태구분, 11: 상태
-      if (row.length < 12) continue;
+      // 3: 사용일수, 7: ERP사번, 8: 근태항목, 9: 근태구분, 10: 상태
+      if (row.length < 11) continue;
 
-      const useDaysStr = row[4];
-      const sapId = (row[8] || '').trim().toLowerCase();
-      const category = (row[9] || '').trim();
-      const type = (row[10] || '').trim();
-      const status = (row[11] || '').trim();
+      const useDaysStr = row[3];
+      const sapId = (row[7] || '').trim().toLowerCase();
+      const category = (row[8] || '').trim();
+      const type = (row[9] || '').trim();
+      const status = (row[10] || '').trim();
 
       if (
         sapId &&

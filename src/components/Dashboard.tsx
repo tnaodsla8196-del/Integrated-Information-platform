@@ -1,4 +1,4 @@
-// Refreshed build: 2026-06-05 UI improvements
+// Refreshed build: 2026-06-05 UI and Layout alignment improvements
 import { 
   Users, Target, UserMinus, Clock, Calendar, Clipboard,
   TrendingUp, RefreshCcw, ChevronRight, Loader2, Save, Search, Download
@@ -1314,21 +1314,23 @@ export const Dashboard = ({ token }: DashboardProps) => {
               animate={{ opacity: 1, y: 0 }}
               className="dashboard-card"
             >
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <h2 className="section-title mb-0">채용현황 상세 목록</h2>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                    <input
-                      type="text"
-                      placeholder="이름, 본부, 팀 검색"
-                      className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-blue-500 w-full sm:w-64 focus:bg-white transition-all shadow-sm"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                  <h2 className="section-title mb-0 shrink-0">채용현황 상세 목록</h2>
+                  <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 ml-0 lg:ml-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                      <input
+                        type="text"
+                        placeholder="이름, 본부, 팀 검색"
+                        className="pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-blue-500 w-full sm:w-64 focus:bg-white transition-all shadow-sm h-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
-                <span className="text-xs text-slate-400 font-mono">신규 입사자 순 정렬 · 검색 결과: {filteredEmployees.length}명</span>
+                <span className="text-xs text-slate-400 font-mono shrink-0">신규 입사자 순 정렬 · 검색 결과: {filteredEmployees.length}명</span>
               </div>
               
               <div className="overflow-x-auto no-scrollbar -mx-4 sm:mx-0 shadow-sm sm:shadow-none border sm:border-0 border-slate-100 rounded-xl sm:rounded-none">

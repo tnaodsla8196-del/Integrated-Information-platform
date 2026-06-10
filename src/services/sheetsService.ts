@@ -96,12 +96,7 @@ const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number): 
     return Math.min(11, completedMonths);
   }
 
-  // 2. 2025년도 입사자 중 1년 미만인 자 (completedMonths < 12)
-  if (hireYear === 2025 && completedMonths < 12) {
-    return Math.min(11, completedMonths);
-  }
-
-  // 3. 그 외 (2025년도 중 1년 이상인 자, 2024년도 및 그 전 입사자): 구글 시트 값 그대로 사용
+  // 2025년도 및 그 전 입사자: 구글 시트 값 그대로 사용 (회계연도 비례정산 등 반영을 위함)
   return sheetTotalLeave;
 };
 

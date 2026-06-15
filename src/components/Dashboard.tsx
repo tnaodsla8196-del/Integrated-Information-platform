@@ -1,4 +1,4 @@
-// Refreshed build: 2026-06-10 Fix 2025 leave calculation
+// Refreshed build: 2026-06-15 Filter out retired employees from dashboard and sync metrics
 import { 
   Users, Target, UserMinus, Clock, Calendar, Clipboard,
   TrendingUp, RefreshCcw, ChevronRight, Loader2, Save, Search, Download
@@ -320,7 +320,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     }
   };
 
-  const activeCount = employees.filter(e => e.status === '재직').length;
+  const activeCount = employees.filter(e => e.status !== '퇴직').length;
   const thisMonthHires = employees.filter(e => {
     const hireDate = new Date(e.hireDate);
     return hireDate.getMonth() === now.getMonth() && hireDate.getFullYear() === now.getFullYear();
@@ -330,7 +330,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
   const totalTotalLeave = employees.reduce((acc, e) => acc + (e.totalLeave || 0), 0);
   const leaveUsageRate = Math.round((totalUsedLeave / (totalTotalLeave || 1)) * 100);
 
-  const activeEmployees = employees.filter(e => e.status === '재직');
+  const activeEmployees = employees.filter(e => e.status !== '퇴직');
   const totalTenureYears = activeEmployees.reduce((acc, e) => acc + getYearsOfService(e.hireDate), 0);
   const averageTenure = activeEmployees.length > 0 
     ? parseFloat((totalTenureYears / activeEmployees.length).toFixed(1)) 
@@ -576,7 +576,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     상세보기 <ChevronRight size={12} />
                   </button>
                 </div>
-                <OrganizationChart data={employees} />
+                <OrganizationChart data={employees.filter(e => e.status !== '퇴직')} />
               </motion.div>
 
               <motion.div 
@@ -591,7 +591,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     상세보기 <ChevronRight size={12} />
                   </button>
                 </div>
-                <RankChart data={employees} />
+                <RankChart data={employees.filter(e => e.status !== '퇴직')} />
               </motion.div>
             </div>
             
@@ -617,6 +617,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                   </thead>
                   <tbody>
                     {employees
+                      .filter(e => e.status !== '퇴직')
                       .sort((a, b) => new Date(b.hireDate).getTime() - new Date(a.hireDate).getTime())
                       .slice(0, 5)
                       .map((emp, idx) => {
@@ -1387,7 +1388,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
               <div className="dashboard-card overflow-hidden hidden sm:block">
                 <h3 className="section-title">조직도</h3>
                 <div className="bg-slate-50/50 rounded-xl border border-slate-100/50">
-                  <OrganizationalTree data={employees} />
+                  <OrganizationalTree data={employees.filter(e => e.status !== '퇴직')} />
                 </div>
               </div>
 
@@ -1395,11 +1396,11 @@ export const Dashboard = ({ token }: DashboardProps) => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="dashboard-card">
                   <h3 className="section-title">조직별 인원 현황 (본사/센터 통합)</h3>
-                  <OrganizationChart data={employees} />
+                  <OrganizationChart data={employees.filter(e => e.status !== '퇴직')} />
                 </div>
                 <div className="dashboard-card">
                   <h3 className="section-title">직급 구성비</h3>
-                  <RankChart data={employees} />
+                  <RankChart data={employees.filter(e => e.status !== '퇴직')} />
                 </div>
               </div>
             </div>

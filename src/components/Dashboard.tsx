@@ -767,19 +767,19 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         {renderSortableHeader('성명', 'name', 'left', 'min-w-[70px]')}
                         {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell')}
                         {renderSortableHeader('팀명', 'team', 'left', 'table-cell')}
-                        {renderSortableHeader('직급', 'rank', 'left', 'table-cell')}
-                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'hidden sm:table-cell')}
+                        {renderSortableHeader('직급', 'rank', 'left', activeTab === 'status' ? 'hidden sm:table-cell' : 'table-cell')}
+                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'table-cell')}
                         {activeTab === 'tenure' && renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell')}
                         {activeTab === 'status' && (
                           <>
                             {renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell')}
-                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'hidden sm:table-cell')}
+                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'table-cell')}
                             {renderSortableHeader('특이사항', 'remarksType', 'left', 'hidden sm:table-cell')}
                           </>
                         )}
                         {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell')}
                         {(activeTab === 'leaver' || activeTab === 'expected-leaver') && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell')}
-                        {renderSortableHeader('상태', 'status', 'center')}
+                        {renderSortableHeader('상태', 'status', 'center', activeTab === 'status' ? 'hidden sm:table-cell' : 'table-cell')}
                         <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
                       </>
                     )}
@@ -1032,10 +1032,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           />
                         ) : emp.hq}
                       </td>
-                      <td className={cn(
-                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-500",
-                        activeTab === 'attendance' ? "hidden sm:table-cell" : "table-cell"
-                      )}>
+                      <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500">
                         {editingId === emp.id ? (
                           <input 
                             className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 focus:bg-white text-[10px] sm:text-sm"
@@ -1046,7 +1043,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       </td>
                       <td className={cn(
                         "px-3 py-3 sm:px-5 sm:py-4 text-slate-500",
-                        activeTab === 'attendance' ? "hidden sm:table-cell" : "table-cell"
+                        activeTab === 'status' ? "hidden sm:table-cell" : "table-cell"
                       )}>
                         {editingId === emp.id ? (
                           <input 
@@ -1057,7 +1054,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         ) : formatRankName(emp.rank)}
                       </td>
                       {activeTab === 'status' && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold font-mono text-xs">
+                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold font-mono text-xs">
                           {formatTenureYear(emp.yearsInRank)}
                         </td>
                       )}
@@ -1083,7 +1080,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         </td>
                       )}
                       {activeTab === 'status' && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-center">
+                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-center">
                           {editingId === emp.id ? (
                             <select
                               className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white cursor-pointer"
@@ -1159,74 +1156,46 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           )}
                         </td>
                       )}
-                      <td className={cn(
-                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-semibold",
-                        activeTab === 'attendance' ? "hidden lg:table-cell" : "hidden sm:table-cell"
-                      )}>{emp.hireDate}</td>
+                      <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-semibold">{emp.hireDate}</td>
                       {(activeTab === 'leaver' || activeTab === 'expected-leaver') && (
                         <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold">
                           {emp.resignationDate || '-'}
                         </td>
                       )}
-                      {activeTab === 'attendance' ? (
-                        <>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600">
-                            {calculateLeaveByHireDate(emp.hireDate)}
-                          </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600">
-                            {calculateLeaveByFiscalYear(emp.hireDate)}
-                          </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold">
-                            {editingId === emp.id ? (
-                              <input 
-                                type="number"
-                                step="any"
-                                className="border border-slate-200 rounded px-1 py-0.5 w-8 sm:w-16 text-center text-xs focus:bg-white"
-                                value={editValues.usedLeave ?? emp.usedLeave}
-                                onChange={(e) => setEditValues({ ...editValues, usedLeave: parseFloat(e.target.value) })}
-                              />
-                            ) : (emp.usedLeave || 0)}
-                          </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold">
-                            {calculateLeaveByHireDate(emp.hireDate) - (editingId === emp.id ? (editValues.usedLeave ?? emp.usedLeave ?? 0) : (emp.usedLeave || 0))}
-                          </td>
-                          <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-violet-600 font-bold">
-                            {calculateLeaveByFiscalYear(emp.hireDate) - (editingId === emp.id ? (editValues.usedLeave ?? emp.usedLeave ?? 0) : (emp.usedLeave || 0))}
-                          </td>
-                        </>
-                      ) : (
-                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-center">
-                          {editingId === emp.id ? (
-                            <select
-                              className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white"
-                              value={editValues.status || emp.status}
-                              onChange={(e) => setEditValues({ ...editValues, status: e.target.value as EmploymentStatus })}
-                            >
-                              <option value="재직">재직</option>
-                              <option value="휴직">휴직</option>
-                              <option value="퇴직">퇴직</option>
-                            </select>
-                          ) : (
-                            (() => {
-                              const isExpectedLeaver = emp.status === '재직' && isFutureDate(emp.resignationDate);
-                              return (
-                                <span className={cn(
-                                  "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold border",
-                                  isExpectedLeaver 
-                                    ? "bg-amber-50 text-amber-700 border-amber-200" 
-                                    : emp.status === '재직' 
-                                      ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
-                                      : emp.status === '퇴직' 
-                                        ? "bg-rose-50 text-rose-700 border-rose-100" 
-                                        : "bg-amber-50 text-amber-700 border-amber-100"
-                                )}>
-                                  {isExpectedLeaver ? '퇴사예정' : emp.status}
-                                </span>
-                              );
-                            })()
-                          )}
-                        </td>
-                      )}
+                      <td className={cn(
+                        "px-3 py-3 sm:px-5 sm:py-4 text-center",
+                        activeTab === 'status' ? "hidden sm:table-cell" : "table-cell"
+                      )}>
+                        {editingId === emp.id ? (
+                          <select
+                            className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white"
+                            value={editValues.status || emp.status}
+                            onChange={(e) => setEditValues({ ...editValues, status: e.target.value as EmploymentStatus })}
+                          >
+                            <option value="재직">재직</option>
+                            <option value="휴직">휴직</option>
+                            <option value="퇴직">퇴직</option>
+                          </select>
+                        ) : (
+                          (() => {
+                            const isExpectedLeaver = emp.status === '재직' && isFutureDate(emp.resignationDate);
+                            return (
+                              <span className={cn(
+                                "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold border",
+                                isExpectedLeaver 
+                                  ? "bg-amber-50 text-amber-700 border-amber-200" 
+                                  : emp.status === '재직' 
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+                                    : emp.status === '퇴직' 
+                                      ? "bg-rose-50 text-rose-700 border-rose-100" 
+                                      : "bg-amber-50 text-amber-700 border-amber-100"
+                              )}>
+                                {isExpectedLeaver ? '퇴사예정' : emp.status}
+                              </span>
+                            );
+                          })()
+                        )}
+                      </td>
                       <td className="px-3 py-3 sm:px-5 sm:py-4 text-right">
                         {editingId === emp.id ? (
                           <div className="flex justify-end gap-1">

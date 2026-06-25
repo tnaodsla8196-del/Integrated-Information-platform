@@ -603,16 +603,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
             >
               <h2 className="section-title">최근 입사자 현황</h2>
               <div className="overflow-x-auto no-scrollbar">
-                <table className="w-full text-[11px] sm:text-sm border-collapse table-fixed sm:table-auto">
+                <table className="w-[500px] sm:w-full text-[11px] sm:text-sm border-collapse table-fixed sm:table-auto">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">성명</th>
+                      <th className="w-[16%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">성명</th>
                       <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600">본부</th>
-                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">팀명</th>
-                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">직급</th>
-                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">입사일</th>
+                      <th className="w-[26%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">팀명</th>
+                      <th className="w-[18%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">직급</th>
+                      <th className="w-[20%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">입사일</th>
                       <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600">수습만료일</th>
-                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-center font-semibold text-slate-600">비고</th>
+                      <th className="w-[20%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-center font-semibold text-slate-600">비고</th>
                     </tr>
                   </thead>
                   <tbody>

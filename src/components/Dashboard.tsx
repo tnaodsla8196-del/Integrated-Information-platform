@@ -603,16 +603,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
             >
               <h2 className="section-title">최근 입사자 현황</h2>
               <div className="overflow-x-auto no-scrollbar">
-                <table className="w-full text-[11px] sm:text-sm border-collapse">
+                <table className="w-full text-[11px] sm:text-sm border-collapse table-fixed sm:table-auto">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="px-4 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">성명</th>
+                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">성명</th>
                       <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600">본부</th>
-                      <th className="px-4 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">팀명</th>
-                      <th className="px-4 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">직급</th>
-                      <th className="px-4 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">입사일</th>
+                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">팀명</th>
+                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">직급</th>
+                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">입사일</th>
                       <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600">수습만료일</th>
-                      <th className="px-4 py-2 sm:px-4 sm:py-3 text-center font-semibold text-slate-600">비고</th>
+                      <th className="w-1/5 sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-center font-semibold text-slate-600">비고</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -625,13 +625,13 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         const probationVal = getProbationStatus(emp);
                         return (
                           <tr key={`${emp.id}-${idx}`} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                            <td className="px-4 py-2 sm:px-4 sm:py-3 font-semibold text-slate-900">{emp.name}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 font-semibold text-slate-900 truncate">{emp.name}</td>
                             <td className="hidden sm:table-cell px-4 py-3 text-slate-500">{emp.hq}</td>
-                            <td className="px-4 py-2 sm:px-4 sm:py-3 text-slate-500">{formatTeamName(emp.team)}</td>
-                            <td className="px-4 py-2 sm:px-4 sm:py-3 text-slate-500">{formatRankName(emp.rank)}</td>
-                            <td className="px-4 py-2 sm:px-4 sm:py-3 text-slate-500 font-mono text-xs">{emp.hireDate}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 truncate">{formatTeamName(emp.team)}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 truncate">{formatRankName(emp.rank)}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 font-mono text-xs truncate">{emp.hireDate}</td>
                             <td className="hidden sm:table-cell px-4 py-3 text-slate-500 font-mono text-xs">{probationEndDate}</td>
-                            <td className="px-4 py-2 sm:px-4 sm:py-3 text-center">
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
                               <select
                                 className={cn(
                                   "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
@@ -747,7 +747,10 @@ export const Dashboard = ({ token }: DashboardProps) => {
               <span className="text-xs text-slate-400 font-mono shrink-0">검색 결과: {filteredEmployees.length}명</span>
             </div>
             <div className="overflow-x-auto no-scrollbar -mx-4 sm:mx-0 shadow-sm sm:shadow-none border sm:border-0 border-slate-100 rounded-xl sm:rounded-none">
-              <table className="w-full text-[10px] sm:text-[13px] border-collapse min-w-full bg-white">
+              <table className={cn(
+                "w-full text-[10px] sm:text-[13px] border-collapse min-w-full bg-white",
+                activeTab === 'status' && "table-fixed sm:table-auto"
+              )}>
                 <thead>
                   <tr className="border-b border-slate-100 text-left">
                     {activeTab === 'attendance' ? (
@@ -764,23 +767,26 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       </>
                     ) : (
                       <>
-                        {renderSortableHeader('성명', 'name', 'left', 'min-w-[70px]')}
+                        {renderSortableHeader('성명', 'name', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto sm:min-w-[70px]' : 'min-w-[70px]')}
                         {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell')}
-                        {renderSortableHeader('팀명', 'team', 'left', 'table-cell')}
+                        {renderSortableHeader('팀명', 'team', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto table-cell' : 'table-cell')}
                         {renderSortableHeader('직급', 'rank', 'left', activeTab === 'status' ? 'hidden sm:table-cell' : 'table-cell')}
-                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'table-cell')}
+                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'w-1/5 sm:w-auto table-cell')}
                         {activeTab === 'tenure' && renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell')}
                         {activeTab === 'status' && (
                           <>
                             {renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell')}
-                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'table-cell')}
+                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'w-1/5 sm:w-auto table-cell')}
                             {renderSortableHeader('특이사항', 'remarksType', 'left', 'hidden sm:table-cell')}
                           </>
                         )}
                         {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell')}
                         {(activeTab === 'leaver' || activeTab === 'expected-leaver') && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell')}
                         {renderSortableHeader('상태', 'status', 'center', activeTab === 'status' ? 'hidden sm:table-cell' : 'table-cell')}
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right">관리</th>
+                        <th className={cn(
+                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right",
+                          activeTab === 'status' ? "w-1/5 sm:w-auto" : ""
+                        )}>관리</th>
                       </>
                     )}
                   </tr>
@@ -1012,7 +1018,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             <>
                               <span>{emp.name}</span>
                               {isPromoted && (
-                                <span className="inline-flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100 text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
+                                <span className="hidden sm:inline-flex items-center justify-center bg-blue-50 text-blue-700 border-blue-100 text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
                                   ★ 대상
                                 </span>
                               )}

@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { StatCard, StatCardProps } from './StatCard';
-import { OrganizationChart, RankChart, OrganizationalTree } from './Charts';
+import { OrganizationChart, RankChart, OrganizationalTree, TenureDistributionChart } from './Charts';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchEmployeesFromSheets, updateEmployeeInSheets, bulkUpdateEmployeesInSheets } from '../services/sheetsService';
@@ -1379,6 +1379,11 @@ export const Dashboard = ({ token }: DashboardProps) => {
                 <div className="bg-slate-50/50 rounded-xl border border-slate-100/50">
                   <OrganizationalTree data={employees.filter(e => e.status !== '퇴직')} />
                 </div>
+              </div>
+
+              {/* Middle: Tenure Distribution Chart */}
+              <div className="dashboard-card">
+                <TenureDistributionChart data={employees.filter(e => e.status !== '퇴직')} />
               </div>
 
               {/* Bottom: Two columns Grid */}

@@ -29,9 +29,10 @@ const TABS = [
 
 const SPREADSHEET_ID = '1kHoQPjudplszOtD39wnZHMHGAaEghTNkVuqNjNQf37o';
 
-const calculateProbationEndDate = (hireDateStr: string): string => {
+const calculateProbationEndDate = (hireDateStr: string, probationVal?: string): string => {
+  if (probationVal === '수습없음') return '-';
   if (!hireDateStr) return '';
-  const date = new Date(hireDateStr);
+  const date = new Date(hireDateStr.replace(/\./g, '/'));
   if (isNaN(date.getTime())) return '';
   date.setMonth(date.getMonth() + 3);
   const yyyy = date.getFullYear();
@@ -40,11 +41,11 @@ const calculateProbationEndDate = (hireDateStr: string): string => {
   return `${yyyy}/${mm}/${dd}`;
 };
 
-const getProbationStatus = (emp: Employee): '수습' | '수습종료' => {
+const getProbationStatus = (emp: Employee): '수습' | '수습종료' | '수습없음' => {
   if (emp.probationStatus) return emp.probationStatus;
   if (!emp.hireDate) return '수습종료';
   
-  const hireDate = new Date(emp.hireDate);
+  const hireDate = new Date(emp.hireDate.replace(/\./g, '/'));
   if (isNaN(hireDate.getTime())) return '수습종료';
   
   const endDate = new Date(hireDate);
@@ -282,7 +283,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     }
   }, [token]);
 
-  const handleProbationStatusChange = async (emp: Employee, newStatus: '수습' | '수습종료') => {
+  const handleProbationStatusChange = async (emp: Employee, newStatus: '수습' | '수습종료' | '수습없음') => {
     const index = employees.findIndex(e => e.id === emp.id);
     if (index === -1) return;
 
@@ -296,8 +297,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
     try {
       await updateEmployeeInSheets(token, updatedEmployee, index);
     } catch (err) {
-      alert('업데이트 실패: ' + getErrorMessage(err));
-      loadData();
+      console.warn('Probation update error:', err);
     }
   };
 
@@ -621,8 +621,8 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       .sort((a, b) => new Date(b.hireDate).getTime() - new Date(a.hireDate).getTime())
                       .slice(0, 5)
                       .map((emp, idx) => {
-                        const probationEndDate = calculateProbationEndDate(emp.hireDate);
                         const probationVal = getProbationStatus(emp);
+                        const probationEndDate = calculateProbationEndDate(emp.hireDate, probationVal);
                         return (
                           <tr key={`${emp.id}-${idx}`} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                             <td className="px-2 py-2 sm:px-4 sm:py-3 font-semibold text-slate-900 truncate">{emp.name}</td>
@@ -635,15 +635,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               <select
                                 className={cn(
                                   "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
-                                  probationVal === '수습' 
-                                    ? "bg-amber-50 text-amber-700 border-amber-200" 
-                                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  probationVal === '수습' && "bg-amber-50 text-amber-700 border-amber-200",
+                                  probationVal === '수습종료' && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                                  probationVal === '수습없음' && "bg-slate-100 text-slate-600 border-slate-300"
                                 )}
                                 value={probationVal}
                                 onChange={(e) => handleProbationStatusChange(emp, e.target.value as any)}
                               >
                                 <option value="수습">수습</option>
                                 <option value="수습종료">수습종료</option>
+                                <option value="수습없음">수습없음</option>
                               </select>
                             </td>
                           </tr>
@@ -1079,6 +1080,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             >
                               <option value="상용직">상용직</option>
                               <option value="계약직">계약직</option>
+                              <option value="파견직">파견직</option>
                             </select>
                           ) : (
                             emp.employmentType || '상용직'
@@ -1244,7 +1246,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
         {activeTab === 'hiring' && (
           <div className="space-y-6">
             {/* Hiring Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="dashboard-card flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">전체 채용 인원</p>
@@ -1276,6 +1278,17 @@ export const Dashboard = ({ token }: DashboardProps) => {
                 </div>
                 <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
                   <Target size={20} />
+                </div>
+              </div>
+              <div className="dashboard-card flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">수습 없음</p>
+                  <h3 className="text-2xl font-bold text-slate-600 mt-1">
+                    {employees.filter(e => e.status !== '퇴직' && getProbationStatus(e) === '수습없음').length}명
+                  </h3>
+                </div>
+                <div className="p-3 bg-slate-100 text-slate-600 rounded-xl">
+                  <Clipboard size={20} />
                 </div>
               </div>
             </div>
@@ -1321,8 +1334,8 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     {filteredEmployees
                       .sort((a, b) => new Date(b.hireDate).getTime() - new Date(a.hireDate).getTime())
                       .map((emp, idx) => {
-                        const probationEndDate = calculateProbationEndDate(emp.hireDate);
                         const probationVal = getProbationStatus(emp);
+                        const probationEndDate = calculateProbationEndDate(emp.hireDate, probationVal);
                         return (
                           <tr key={`${emp.id}-${idx}`} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                             <td className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-900">{emp.name}</td>
@@ -1335,15 +1348,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               <select
                                 className={cn(
                                   "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
-                                  probationVal === '수습' 
-                                    ? "bg-amber-50 text-amber-700 border-amber-200" 
-                                    : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  probationVal === '수습' && "bg-amber-50 text-amber-700 border-amber-200",
+                                  probationVal === '수습종료' && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                                  probationVal === '수습없음' && "bg-slate-100 text-slate-600 border-slate-300"
                                 )}
                                 value={probationVal}
                                 onChange={(e) => handleProbationStatusChange(emp, e.target.value as any)}
                               >
                                 <option value="수습">수습</option>
                                 <option value="수습종료">수습종료</option>
+                                <option value="수습없음">수습없음</option>
                               </select>
                             </td>
                           </tr>

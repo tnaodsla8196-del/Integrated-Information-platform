@@ -1,7 +1,8 @@
 export type Rank = 'CEO' | '이사' | '리드' | '매니저' | '시니어' | '주니어';
 export type EmploymentStatus = '재직' | '휴직' | '퇴직';
 export type Gender = '남' | '여';
-export type EmploymentType = '계약직' | '상용직';
+export type EmploymentType = '상용직' | '계약직' | '파견직';
+export type ProbationStatus = '수습' | '수습종료' | '수습없음';
 
 export interface Employee {
   id: string;
@@ -19,7 +20,7 @@ export interface Employee {
   remainingLeave?: number;
   duration?: string;
   residentNumber?: string;
-  probationStatus?: '수습' | '수습종료';
+  probationStatus?: ProbationStatus;
   promotionStatus?: '대상' | '제외' | '완료' | '미대상' | '승진' | string;
   yearsInRank?: string;
   remarksType?: '선택 없음' | '출산휴가' | '육아휴직' | '기타';

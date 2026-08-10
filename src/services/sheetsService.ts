@@ -46,7 +46,7 @@ const mapDbToEmployee = (db: any): Employee => ({
   remainingLeave: typeof db.remaining_leave === 'number' ? db.remaining_leave : parseFloat(db.remaining_leave || 0),
   duration: db.duration || '',
   residentNumber: db.resident_number || '',
-  probationStatus: db.probation_status || '수습종료',
+  probationStatus: db.probation_status || undefined,
   promotionStatus: db.promotion_status || '미대상',
   yearsInRank: db.years_in_rank || '',
   remarksType: db.remarks_type || '선택 없음',
@@ -69,7 +69,7 @@ const mapEmployeeToDb = (emp: Employee): any => ({
   remaining_leave: emp.remainingLeave || 0,
   duration: emp.duration || '',
   resident_number: emp.residentNumber || '',
-  probation_status: emp.probationStatus || '수습종료',
+  probation_status: emp.probationStatus || null,
   promotion_status: emp.promotionStatus || '미대상',
   years_in_rank: emp.yearsInRank || '',
   remarks_type: emp.remarksType || '선택 없음',
@@ -212,41 +212,43 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    // Fetch existing records from Supabase to preserve manual edits
+    // Fetch existing records from Supabase and localStorage to preserve manual edits
     const existingMap = new Map<string, any>();
     if (supabaseUrl && supabaseAnonKey) {
       try {
-        const { data: existingRows } = await supabase
+        const { data: existingRows, error } = await supabase
           .from('employees')
           .select('*');
-        if (existingRows) {
+        if (!error && existingRows) {
           existingRows.forEach(row => {
             existingMap.set(row.id, row);
           });
         }
       } catch (err) {
-        console.error('Failed to fetch existing records for merge:', err);
+        console.warn('Failed to fetch existing records from Supabase:', err);
       }
-    } else {
-      // Fallback: load existing edits from localStorage to prevent data reset
-      try {
-        const local = localStorage.getItem('hr_employees');
-        if (local) {
-          const list = JSON.parse(local) as Employee[];
-          list.forEach(emp => {
-            existingMap.set(emp.id, {
-              remarks_type: emp.remarksType,
-              remarks_memo: emp.remarksMemo,
-              promotion_status: emp.promotionStatus,
-              probation_status: emp.probationStatus,
-              status: emp.status,
-              employment_type: emp.employmentType,
-            });
+    }
+
+    // Merge with localStorage edits to ensure no client edits are lost
+    try {
+      const local = localStorage.getItem('hr_employees');
+      if (local) {
+        const list = JSON.parse(local) as Employee[];
+        list.forEach(emp => {
+          const prev = existingMap.get(emp.id) || {};
+          existingMap.set(emp.id, {
+            ...prev,
+            remarks_type: emp.remarksType !== undefined ? emp.remarksType : prev.remarks_type,
+            remarks_memo: emp.remarksMemo !== undefined ? emp.remarksMemo : prev.remarks_memo,
+            promotion_status: emp.promotionStatus !== undefined ? emp.promotionStatus : prev.promotion_status,
+            probation_status: emp.probationStatus !== undefined ? emp.probationStatus : prev.probation_status,
+            status: emp.status !== undefined ? emp.status : prev.status,
+            employment_type: emp.employmentType !== undefined ? emp.employmentType : prev.employment_type,
           });
-        }
-      } catch (err) {
-        console.error('Failed to load local storage for merge:', err);
+        });
       }
+    } catch (err) {
+      console.warn('Failed to load local storage for merge:', err);
     }
 
     const leaveUsageMap = await getLeaveUsageMap();
@@ -292,7 +294,17 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       } else {
         status = existing ? existing.status : (((row[7] || '').trim() as EmploymentStatus) || '재직');
       }
-      const employmentType = existing ? existing.employment_type : ((empTypeVal.includes('계약직') ? '계약직' : '상용직') as any);
+
+      let employmentType: EmploymentType = '상용직';
+      if (existing?.employment_type) {
+        employmentType = existing.employment_type;
+      } else if (empTypeVal.includes('파견직')) {
+        employmentType = '파견직';
+      } else if (empTypeVal.includes('계약직')) {
+        employmentType = '계약직';
+      } else {
+        employmentType = '상용직';
+      }
       
       const usedLeave = leaveUsageMap.get(id.toLowerCase()) || 0;
       const sheetTotalLeave = isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]);
@@ -326,14 +338,18 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
     }
 
     if (supabaseUrl && supabaseAnonKey && employeesToUpsert.length > 0) {
-      const { error } = await supabase
-        .from('employees')
-        .upsert(employeesToUpsert, { onConflict: 'id' });
-      
-      if (error) {
-        console.error('Error upserting synced data to Supabase:', error);
-      } else {
-        console.log('Successfully synced Sheets data to Supabase!');
+      try {
+        const { error } = await supabase
+          .from('employees')
+          .upsert(employeesToUpsert, { onConflict: 'id' });
+        
+        if (error) {
+          console.warn('Error upserting synced data to Supabase:', error);
+        } else {
+          console.log('Successfully synced Sheets data to Supabase!');
+        }
+      } catch (upsertErr) {
+        console.warn('Supabase upsert failed during sync (paused or network down):', upsertErr);
       }
     }
 
@@ -368,7 +384,9 @@ export const fetchEmployeesFromSheets = async (
 
   try {
     const list = await syncGoogleSheetsToSupabase();
-    return await mergeLeaveUsage(list);
+    const mergedList = await mergeLeaveUsage(list);
+    localStorage.setItem('hr_employees', JSON.stringify(mergedList));
+    return mergedList;
   } catch (error) {
     console.error('Error auto-syncing from Sheets, falling back to cached Supabase data:', error);
     try {
@@ -400,14 +418,19 @@ export const updateEmployeeInSheets = async (
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  const local = localStorage.getItem('hr_employees');
-  if (local) {
-    const list = JSON.parse(local) as Employee[];
-    const idx = list.findIndex(e => e.id === employee.id);
-    if (idx !== -1) {
-      list[idx] = employee;
-      localStorage.setItem('hr_employees', JSON.stringify(list));
+  // Always update local storage first so changes are immediate and never lost
+  try {
+    const local = localStorage.getItem('hr_employees');
+    if (local) {
+      const list = JSON.parse(local) as Employee[];
+      const idx = list.findIndex(e => e.id === employee.id);
+      if (idx !== -1) {
+        list[idx] = employee;
+        localStorage.setItem('hr_employees', JSON.stringify(list));
+      }
     }
+  } catch (localErr) {
+    console.error('Failed to update localStorage:', localErr);
   }
 
   if (!supabaseUrl || !supabaseAnonKey) return;
@@ -418,10 +441,11 @@ export const updateEmployeeInSheets = async (
       .from('employees')
       .upsert(dbData, { onConflict: 'id' });
 
-    if (error) throw error;
+    if (error) {
+      console.warn('Supabase update returned warning/error:', error);
+    }
   } catch (error) {
-    console.error('Error in updateEmployeeInSheets:', error);
-    throw error;
+    console.warn('Supabase network error (data saved locally):', error);
   }
 };
 
@@ -432,7 +456,11 @@ export const bulkUpdateEmployeesInSheets = async (
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  localStorage.setItem('hr_employees', JSON.stringify(employees));
+  try {
+    localStorage.setItem('hr_employees', JSON.stringify(employees));
+  } catch (localErr) {
+    console.error('Failed to update localStorage in bulkUpdate:', localErr);
+  }
 
   if (!supabaseUrl || !supabaseAnonKey) return;
 
@@ -442,9 +470,10 @@ export const bulkUpdateEmployeesInSheets = async (
       .from('employees')
       .upsert(dbData, { onConflict: 'id' });
 
-    if (error) throw error;
+    if (error) {
+      console.warn('Supabase bulk update warning/error:', error);
+    }
   } catch (error) {
-    console.error('Error in bulkUpdateEmployeesInSheets:', error);
-    throw error;
+    console.warn('Supabase bulk update network error (data saved locally):', error);
   }
 };

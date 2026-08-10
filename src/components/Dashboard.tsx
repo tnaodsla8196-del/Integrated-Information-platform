@@ -960,7 +960,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               {usedLeave}
                             </td>
                             {/* 잔여 */}
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-bold font-mono text-xs sm:text-sm">
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-semibold text-xs sm:text-sm">
                               {remainingLeave}
                             </td>
                             {/* 관리 */}

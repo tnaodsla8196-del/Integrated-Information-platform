@@ -603,16 +603,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
             >
               <h2 className="section-title">최근 입사자 현황</h2>
               <div className="overflow-x-auto no-scrollbar">
-                <table className="w-[500px] sm:w-full text-[11px] sm:text-sm border-collapse table-fixed sm:table-auto">
+                <table className="w-[500px] sm:w-full text-xs sm:text-sm border-collapse table-fixed sm:table-auto">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      <th className="w-[16%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">성명</th>
-                      <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600">본부</th>
-                      <th className="w-[26%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">팀명</th>
-                      <th className="w-[18%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">직급</th>
-                      <th className="w-[20%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600">입사일</th>
-                      <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600">수습만료일</th>
-                      <th className="w-[20%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-center font-semibold text-slate-600">비고</th>
+                      <th className="w-[16%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600 text-xs sm:text-sm">성명</th>
+                      <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600 text-xs sm:text-sm">본부</th>
+                      <th className="w-[26%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600 text-xs sm:text-sm">팀명</th>
+                      <th className="w-[18%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600 text-xs sm:text-sm">직급</th>
+                      <th className="w-[20%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-left font-semibold text-slate-600 text-xs sm:text-sm">입사일</th>
+                      <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-600 text-xs sm:text-sm">수습만료일</th>
+                      <th className="w-[20%] sm:w-auto px-2 py-2 sm:px-4 sm:py-3 text-center font-semibold text-slate-600 text-xs sm:text-sm">비고</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -625,16 +625,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         const probationEndDate = calculateProbationEndDate(emp.hireDate, probationVal);
                         return (
                           <tr key={`${emp.id}-${idx}`} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                            <td className="px-2 py-2 sm:px-4 sm:py-3 font-semibold text-slate-900 truncate">{emp.name}</td>
-                            <td className="hidden sm:table-cell px-4 py-3 text-slate-500">{emp.hq}</td>
-                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 truncate">{formatTeamName(emp.team)}</td>
-                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 truncate">{formatRankName(emp.rank)}</td>
-                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 font-mono text-xs truncate">{emp.hireDate}</td>
-                            <td className="hidden sm:table-cell px-4 py-3 text-slate-500 font-mono text-xs">{probationEndDate}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 font-semibold text-slate-900 truncate text-xs sm:text-sm">{emp.name}</td>
+                            <td className="hidden sm:table-cell px-4 py-3 text-slate-500 text-xs sm:text-sm">{emp.hq}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 truncate text-xs sm:text-sm">{formatTeamName(emp.team)}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 truncate text-xs sm:text-sm">{formatRankName(emp.rank)}</td>
+                            <td className="px-2 py-2 sm:px-4 sm:py-3 text-slate-500 font-semibold text-xs sm:text-sm truncate">{emp.hireDate}</td>
+                            <td className="hidden sm:table-cell px-4 py-3 text-slate-500 font-semibold text-xs sm:text-sm">{probationEndDate}</td>
                             <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
                               <select
                                 className={cn(
-                                  "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
+                                  "border rounded px-1.5 py-0.5 text-xs sm:text-sm font-semibold focus:bg-white outline-none cursor-pointer",
                                   probationVal === '수습' && "bg-amber-50 text-amber-700 border-amber-200",
                                   probationVal === '수습종료' && "bg-emerald-50 text-emerald-700 border-emerald-200",
                                   probationVal === '수습없음' && "bg-slate-100 text-slate-600 border-slate-300"
@@ -749,7 +749,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
             </div>
             <div className="overflow-x-auto no-scrollbar -mx-4 sm:mx-0 shadow-sm sm:shadow-none border sm:border-0 border-slate-100 rounded-xl sm:rounded-none">
               <table className={cn(
-                "w-full text-[10px] sm:text-[13px] border-collapse min-w-full bg-white",
+                "w-full text-xs sm:text-sm border-collapse min-w-full bg-white",
                 activeTab === 'status' && "table-fixed sm:table-auto"
               )}>
                 <thead>
@@ -768,24 +768,24 @@ export const Dashboard = ({ token }: DashboardProps) => {
                       </>
                     ) : (
                       <>
-                        {renderSortableHeader('성명', 'name', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto sm:min-w-[70px]' : 'min-w-[70px]')}
-                        {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell')}
-                        {renderSortableHeader('팀명', 'team', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto table-cell' : 'table-cell')}
-                        {renderSortableHeader('직급', 'rank', 'left', activeTab === 'status' ? 'hidden sm:table-cell' : 'table-cell')}
-                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'w-1/5 sm:w-auto table-cell')}
-                        {activeTab === 'tenure' && renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell')}
+                        {renderSortableHeader('성명', 'name', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto sm:min-w-[70px] text-xs sm:text-sm' : 'min-w-[70px] text-xs sm:text-sm')}
+                        {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell text-xs sm:text-sm')}
+                        {renderSortableHeader('팀명', 'team', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto table-cell text-xs sm:text-sm' : 'table-cell text-xs sm:text-sm')}
+                        {renderSortableHeader('직급', 'rank', 'left', activeTab === 'status' ? 'hidden sm:table-cell text-xs sm:text-sm' : 'table-cell text-xs sm:text-sm')}
+                        {activeTab === 'status' && renderSortableHeader('연차', 'yearsInRank', 'left', 'w-1/5 sm:w-auto table-cell text-xs sm:text-sm')}
+                        {activeTab === 'tenure' && renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                         {activeTab === 'status' && (
                           <>
-                            {renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell')}
-                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'w-1/5 sm:w-auto table-cell')}
-                            {renderSortableHeader('특이사항', 'remarksType', 'left', 'hidden sm:table-cell')}
+                            {renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
+                            {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'w-1/5 sm:w-auto table-cell text-xs sm:text-sm')}
+                            {renderSortableHeader('특이사항', 'remarksType', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                           </>
                         )}
-                        {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell')}
-                        {(activeTab === 'leaver' || activeTab === 'expected-leaver') && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell')}
-                        {renderSortableHeader('상태', 'status', 'center', activeTab === 'status' ? 'hidden sm:table-cell' : 'table-cell')}
+                        {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
+                        {(activeTab === 'leaver' || activeTab === 'expected-leaver') && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
+                        {renderSortableHeader('상태', 'status', 'center', activeTab === 'status' ? 'hidden sm:table-cell text-xs sm:text-sm' : 'table-cell text-xs sm:text-sm')}
                         <th className={cn(
-                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right",
+                          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm",
                           activeTab === 'status' ? "w-1/5 sm:w-auto" : ""
                         )}>관리</th>
                       </>
@@ -1007,11 +1007,11 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               : "hover:bg-slate-50/50"
                           }`}
                         >
-                      <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 min-w-[70px]">
+                      <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 min-w-[70px] text-xs sm:text-sm">
                         <div className="flex items-center gap-1.5">
                           {editingId === emp.id ? (
                             <input 
-                              className="border border-slate-200 rounded px-1 py-0.5 w-12 sm:w-24 outline-blue-500 focus:bg-white text-[10px] sm:text-sm"
+                              className="border border-slate-200 rounded px-1.5 py-0.5 w-16 sm:w-24 outline-blue-500 focus:bg-white text-xs sm:text-sm"
                               value={editValues.name || emp.name}
                               onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
                             />
@@ -1019,7 +1019,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             <>
                               <span>{emp.name}</span>
                               {isPromoted && (
-                                <span className="hidden sm:inline-flex items-center justify-center bg-blue-50 text-blue-700 border-blue-100 text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
+                                <span className="hidden sm:inline-flex items-center justify-center bg-blue-50 text-blue-700 border-blue-100 text-xs px-1.5 py-0.5 rounded-full font-bold shrink-0">
                                   ★ 대상
                                 </span>
                               )}
@@ -1028,53 +1028,53 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         </div>
                       </td>
                       <td className={cn(
-                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-500",
+                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm",
                         "hidden md:table-cell"
                       )}>
                         {editingId === emp.id ? (
                           <input 
-                            className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 focus:bg-white text-[10px] sm:text-sm"
+                            className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm"
                             value={editValues.hq || emp.hq}
                             onChange={(e) => setEditValues({ ...editValues, hq: e.target.value })}
                           />
                         ) : emp.hq}
                       </td>
-                      <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500">
+                      <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">
                         {editingId === emp.id ? (
                           <input 
-                            className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 focus:bg-white text-[10px] sm:text-sm"
+                            className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm"
                             value={editValues.team || emp.team}
                             onChange={(e) => setEditValues({ ...editValues, team: e.target.value })}
                           />
                         ) : formatTeamName(emp.team)}
                       </td>
                       <td className={cn(
-                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-500",
+                        "px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm",
                         activeTab === 'status' ? "hidden sm:table-cell" : "table-cell"
                       )}>
                         {editingId === emp.id ? (
                           <input 
-                            className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 w-12 sm:w-24 focus:bg-white text-[10px] sm:text-sm"
+                            className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 w-16 sm:w-24 focus:bg-white text-xs sm:text-sm"
                             value={editValues.rank || emp.rank}
                             onChange={(e) => setEditValues({ ...editValues, rank: e.target.value })}
                           />
                         ) : formatRankName(emp.rank)}
                       </td>
                       {activeTab === 'status' && (
-                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold font-mono text-xs">
+                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
                           {formatTenureYear(emp.yearsInRank)}
                         </td>
                       )}
                       {activeTab === 'tenure' && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-medium font-mono text-xs">
+                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
                           {formatDuration(emp.duration)}
                         </td>
                       )}
                       {activeTab === 'status' && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500">
+                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-semibold">
                           {editingId === emp.id ? (
                             <select
-                              className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white"
+                              className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white"
                               value={editValues.employmentType || emp.employmentType}
                               onChange={(e) => setEditValues({ ...editValues, employmentType: e.target.value as any })}
                             >
@@ -1088,10 +1088,10 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         </td>
                       )}
                       {activeTab === 'status' && (
-                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-center">
+                        <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-xs sm:text-sm">
                           {editingId === emp.id ? (
                             <select
-                              className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white cursor-pointer"
+                              className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white cursor-pointer"
                               value={editValues.promotionStatus || emp.promotionStatus || getPromotionStatus(emp)}
                               onChange={(e) => setEditValues({ ...editValues, promotionStatus: e.target.value as any })}
                             >
@@ -1103,7 +1103,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           ) : (
                             <select
                               className={cn(
-                                "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
+                                "border rounded px-1.5 py-0.5 text-xs sm:text-sm font-semibold focus:bg-white outline-none cursor-pointer",
                                 getPromotionStatus(emp) === '대상' && "bg-blue-50 text-blue-700 border-blue-200",
                                 getPromotionStatus(emp) === '완료' && "bg-emerald-50 text-emerald-700 border-emerald-200",
                                 getPromotionStatus(emp) === '제외' && "bg-rose-50 text-rose-700 border-rose-200",
@@ -1121,11 +1121,11 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         </td>
                       )}
                       {activeTab === 'status' && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4">
+                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-xs sm:text-sm">
                           {editingId === emp.id ? (
                             <div className="flex flex-col gap-1.5 min-w-[130px]">
                               <select
-                                className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white cursor-pointer"
+                                className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white cursor-pointer"
                                 value={editValues.remarksType || emp.remarksType || '선택 없음'}
                                 onChange={(e) => setEditValues({ ...editValues, remarksType: e.target.value as any })}
                               >
@@ -1135,17 +1135,17 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 <option value="기타">기타</option>
                               </select>
                               <input
-                                className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-[10px] sm:text-xs w-full"
+                                className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
                                 value={editValues.remarksMemo ?? emp.remarksMemo ?? ''}
                                 onChange={(e) => setEditValues({ ...editValues, remarksMemo: e.target.value })}
                                 placeholder="메모 입력"
                               />
                             </div>
                           ) : (
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 text-xs text-slate-700">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 text-xs sm:text-sm text-slate-700">
                               {emp.remarksType && emp.remarksType !== '선택 없음' && (
                                 <span className={cn(
-                                  "inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold border shrink-0",
+                                  "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border shrink-0",
                                   emp.remarksType === '출산휴가' ? "bg-rose-50 text-rose-700 border-rose-200" :
                                   emp.remarksType === '육아휴직' ? "bg-purple-50 text-purple-700 border-purple-200" :
                                   "bg-slate-100 text-slate-700 border-slate-200"
@@ -1154,7 +1154,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 </span>
                               )}
                               {emp.remarksMemo ? (
-                                <span className="font-medium text-slate-600 truncate max-w-[120px] sm:max-w-[160px]" title={emp.remarksMemo}>
+                                <span className="font-medium text-slate-600 truncate max-w-[120px] sm:max-w-[160px] text-xs sm:text-sm" title={emp.remarksMemo}>
                                   {emp.remarksMemo}
                                 </span>
                               ) : (
@@ -1164,19 +1164,19 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           )}
                         </td>
                       )}
-                      <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-400 font-semibold">{emp.hireDate}</td>
+                      <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">{emp.hireDate}</td>
                       {(activeTab === 'leaver' || activeTab === 'expected-leaver') && (
-                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold">
+                        <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
                           {emp.resignationDate || '-'}
                         </td>
                       )}
                       <td className={cn(
-                        "px-3 py-3 sm:px-5 sm:py-4 text-center",
+                        "px-3 py-3 sm:px-5 sm:py-4 text-center text-xs sm:text-sm",
                         activeTab === 'status' ? "hidden sm:table-cell" : "table-cell"
                       )}>
                         {editingId === emp.id ? (
                           <select
-                            className="border border-slate-200 rounded px-1 py-0.5 outline-blue-500 text-[10px] sm:text-xs font-semibold focus:bg-white"
+                            className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white"
                             value={editValues.status || emp.status}
                             onChange={(e) => setEditValues({ ...editValues, status: e.target.value as EmploymentStatus })}
                           >
@@ -1189,7 +1189,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             const isExpectedLeaver = emp.status === '재직' && isFutureDate(emp.resignationDate);
                             return (
                               <span className={cn(
-                                "inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] sm:text-[11px] font-semibold border",
+                                "inline-flex items-center px-2 py-0.5 rounded-full text-xs sm:text-sm font-semibold border",
                                 isExpectedLeaver 
                                   ? "bg-amber-50 text-amber-700 border-amber-200" 
                                   : emp.status === '재직' 
@@ -1204,7 +1204,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           })()
                         )}
                       </td>
-                      <td className="px-3 py-3 sm:px-5 sm:py-4 text-right">
+                      <td className="px-3 py-3 sm:px-5 sm:py-4 text-right text-xs sm:text-sm">
                         {editingId === emp.id ? (
                           <div className="flex justify-end gap-1">
                              <button 
@@ -1215,7 +1215,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             </button>
                             <button 
                               onClick={() => setEditingId(null)}
-                              className="text-slate-400 hover:text-slate-600 p-1 sm:p-1.5 bg-slate-100 rounded-lg text-[9px] sm:text-xs"
+                              className="text-slate-400 hover:text-slate-600 p-1 sm:p-1.5 bg-slate-100 rounded-lg text-xs sm:text-sm"
                             >
                               ✕
                             </button>
@@ -1227,7 +1227,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 setEditingId(emp.id);
                                 setEditValues(emp);
                               }}
-                              className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-700 underline font-medium"
+                              className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 underline font-medium"
                             >
                               수정
                             </button>
@@ -1318,16 +1318,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
               </div>
               
               <div className="overflow-x-auto no-scrollbar -mx-4 sm:mx-0 shadow-sm sm:shadow-none border sm:border-0 border-slate-100 rounded-xl sm:rounded-none">
-                <table className="w-full text-[11px] sm:text-sm border-collapse min-w-full bg-white">
+                <table className="w-full text-xs sm:text-sm border-collapse min-w-full bg-white">
                   <thead>
                     <tr className="border-b border-slate-100 text-left">
-                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px]">성명</th>
-                      <th className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">본부</th>
-                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">팀명</th>
-                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">직급</th>
-                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">입사일</th>
-                      <th className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50">수습만료일</th>
-                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center">비고</th>
+                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 min-w-[70px] text-xs sm:text-sm">성명</th>
+                      <th className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">본부</th>
+                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">팀명</th>
+                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">직급</th>
+                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">입사일</th>
+                      <th className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">수습만료일</th>
+                      <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">비고</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1338,16 +1338,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         const probationEndDate = calculateProbationEndDate(emp.hireDate, probationVal);
                         return (
                           <tr key={`${emp.id}-${idx}`} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-900">{emp.name}</td>
-                            <td className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500">{emp.hq}</td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500">{formatTeamName(emp.team)}</td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500">{formatRankName(emp.rank)}</td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-mono text-xs">{emp.hireDate}</td>
-                            <td className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-mono text-xs">{probationEndDate}</td>
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-900 text-xs sm:text-sm">{emp.name}</td>
+                            <td className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">{emp.hq}</td>
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">{formatTeamName(emp.team)}</td>
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">{formatRankName(emp.rank)}</td>
+                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">{emp.hireDate}</td>
+                            <td className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">{probationEndDate}</td>
                             <td className="px-3 py-3 sm:px-5 sm:py-4 text-center">
                               <select
                                 className={cn(
-                                  "border rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold focus:bg-white outline-none cursor-pointer",
+                                  "border rounded px-1.5 py-0.5 text-xs sm:text-sm font-semibold focus:bg-white outline-none cursor-pointer",
                                   probationVal === '수습' && "bg-amber-50 text-amber-700 border-amber-200",
                                   probationVal === '수습종료' && "bg-emerald-50 text-emerald-700 border-emerald-200",
                                   probationVal === '수습없음' && "bg-slate-100 text-slate-600 border-slate-300"

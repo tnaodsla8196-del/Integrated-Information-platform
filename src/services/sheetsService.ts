@@ -141,7 +141,7 @@ const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
   const LEAVE_SHEET_ID = '1fsypp6-z5wZ73GhzVNu8FE8EtmVYgv7LVuRzHIaSUUA';
   
   try {
-    const targetUrl = `https://docs.google.com/spreadsheets/d/${LEAVE_SHEET_ID}/export?format=csv`;
+    const targetUrl = `https://docs.google.com/spreadsheets/d/${LEAVE_SHEET_ID}/export?format=csv&t=${Date.now()}`;
     const res = await fetch(targetUrl);
     if (!res.ok) throw new Error(`HTTP error fetching leave sheet: ${res.status}`);
     
@@ -149,20 +149,33 @@ const getLeaveUsageMap = async (): Promise<Map<string, number>> => {
     const lines = text.split(/\r?\n/);
     if (lines.length <= 1) return leaveUsageMap;
 
+    // 동적으로 헤더 컬럼 인덱스 탐색 (시트 열 순서 변경에 안전하게 대응)
+    const header = parseCSVLine(lines[0]);
+    let useDaysIdx = header.findIndex(h => h.includes('사용일수'));
+    let sapIdIdx = header.findIndex(h => h.includes('사번'));
+    let categoryIdx = header.findIndex(h => h.includes('근태항목'));
+    let typeIdx = header.findIndex(h => h.includes('근태구분'));
+    let statusIdx = header.findIndex(h => h.includes('상태'));
+
+    // 탐색 실패 시 기본 인덱스 폴백
+    if (useDaysIdx === -1) useDaysIdx = 4;
+    if (sapIdIdx === -1) sapIdIdx = 8;
+    if (categoryIdx === -1) categoryIdx = 9;
+    if (typeIdx === -1) typeIdx = 10;
+    if (statusIdx === -1) statusIdx = 11;
+
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
       
       const row = parseCSVLine(line);
-      // Row fields index breakdown:
-      // 3: 사용일수, 7: ERP사번, 8: 근태항목, 9: 근태구분, 10: 상태
-      if (row.length < 11) continue;
+      if (row.length <= Math.max(useDaysIdx, sapIdIdx, categoryIdx, typeIdx, statusIdx)) continue;
 
-      const useDaysStr = row[3];
-      const sapId = (row[7] || '').trim().toLowerCase();
-      const category = (row[8] || '').trim();
-      const type = (row[9] || '').trim();
-      const status = (row[10] || '').trim();
+      const useDaysStr = row[useDaysIdx];
+      const sapId = (row[sapIdIdx] || '').trim().toLowerCase();
+      const category = (row[categoryIdx] || '').trim();
+      const type = (row[typeIdx] || '').trim();
+      const status = (row[statusIdx] || '').trim();
 
       if (
         sapId &&
@@ -201,7 +214,7 @@ const mergeLeaveUsage = async (employees: Employee[]): Promise<Employee[]> => {
 
 const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
   try {
-    const targetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
+    const targetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&t=${Date.now()}`;
     const res = await fetch(targetUrl);
     if (!res.ok) throw new Error('Failed to fetch CSV from Google Sheets');
     

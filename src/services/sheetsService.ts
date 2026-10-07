@@ -76,7 +76,25 @@ const mapEmployeeToDb = (emp: Employee): any => ({
   remarks_memo: emp.remarksMemo || '',
 });
 
-const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number): number => {
+// 2025년 입사자별 2026년 부여 연차 (1년 미만 11일 + 2026년 회계연도 비례연차 - 2025년 기사용 연차)
+// 고범희(NF230702) 등 퇴직자는 구글 시트 원본 데이터 유지
+const LEAVE_GENERATED_2025: Record<string, number> = {
+  'NF250101': 17,    // 김종민: 26 - 9 = 17
+  'NF250102': 19.5,  // 민경기: 26 - 6.5 = 19.5
+  'NF250201': 15.5,  // 전지민: 25 - 9.5 = 15.5
+  'NF250303': 14,    // 조영도: 23 - 9 = 14
+  'NF250401': 16,    // 이재웅: 23 - 7 = 16
+  'NF250501': 14,    // 정경화: 21 - 7 = 14
+  'NT250501': 21,    // 박선후: 21 - 0 = 21
+  'NF250601': 19,    // 김성국: 20 - 1 = 19
+  'NF250602': 15,    // 장명훈: 20 - 5 = 15
+  'NF250701': 15.5,  // 박상율: 19 - 3.5 = 15.5
+  'NF250801': 14.5,  // 김성진: (11 - 2.5) + 6 = 14.5 (2025년 사용 2.5, 이월 1.5)
+  'NF251001': 13,    // 김선현: 15 - 2 = 13 (기존 9 -> 13 정정)
+  'NF251003': 14,    // 김지우: 15 - 1 = 14 (기존 9 -> 14 정정)
+};
+
+const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number, empId?: string): number => {
   if (!hireDateStr) return sheetTotalLeave;
   
   const normalizedDateStr = hireDateStr.replace(/\./g, '/');
@@ -96,7 +114,15 @@ const calculateGeneratedLeave = (hireDateStr: string, sheetTotalLeave: number): 
     return Math.min(11, completedMonths);
   }
 
-  // 2025년도 및 그 전 입사자: 구글 시트 값 그대로 사용 (회계연도 비례정산 등 반영을 위함)
+  // 2. 2025년도 입사자: (1년 미만 11일 + 2026년 회계연도 비례연차) - 2025년 기사용 연차
+  if (hireYear === 2025 && empId) {
+    const customLeave = LEAVE_GENERATED_2025[empId.toUpperCase()];
+    if (customLeave !== undefined) {
+      return customLeave;
+    }
+  }
+
+  // 2024년도 및 그 전 입사자 (또는 매핑 외 인원): 구글 시트 값 그대로 사용
   return sheetTotalLeave;
 };
 
@@ -201,7 +227,7 @@ const mergeLeaveUsage = async (employees: Employee[]): Promise<Employee[]> => {
   return employees.map(emp => {
     // 사번 대소문자 미스매칭 매핑 보강
     const realUsedLeave = leaveUsageMap.get(emp.id?.toLowerCase()) || 0;
-    const calculatedTotal = calculateGeneratedLeave(emp.hireDate, emp.totalLeave);
+    const calculatedTotal = calculateGeneratedLeave(emp.hireDate, emp.totalLeave, emp.id);
     const remainingLeave = calculatedTotal - realUsedLeave;
     return {
       ...emp,
@@ -321,7 +347,7 @@ const syncGoogleSheetsToSupabase = async (): Promise<Employee[]> => {
       
       const usedLeave = leaveUsageMap.get(id.toLowerCase()) || 0;
       const sheetTotalLeave = isNaN(parseFloat(row[10])) ? 0 : parseFloat(row[10]);
-      const totalLeave = calculateGeneratedLeave(row[5] || '', sheetTotalLeave);
+      const totalLeave = calculateGeneratedLeave(row[5] || '', sheetTotalLeave, id);
 
       const baseEmployee: Employee = {
         id: id,

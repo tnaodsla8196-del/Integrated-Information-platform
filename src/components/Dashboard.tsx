@@ -302,14 +302,14 @@ export const Dashboard = ({ token }: DashboardProps) => {
       <th 
         onClick={() => requestSort(key)}
         className={cn(
-          "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 cursor-pointer hover:bg-slate-100/70 hover:text-slate-700 transition-colors select-none",
+          "px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 cursor-pointer hover:bg-slate-100/70 hover:text-slate-700 transition-colors select-none whitespace-nowrap",
           alignment === 'center' && "text-center",
           alignment === 'right' && "text-right",
           className
         )}
       >
         <div className={cn(
-          "inline-flex items-center gap-1",
+          "inline-flex items-center gap-1 whitespace-nowrap",
           alignment === 'center' && "justify-center",
           alignment === 'right' && "justify-end"
         )}>
@@ -1119,10 +1119,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                 <span className="text-xs text-slate-400 font-mono shrink-0">검색 결과: {filteredEmployees.length}명</span>
               </div>
               <div className="overflow-x-auto no-scrollbar -mx-4 sm:mx-0 shadow-sm sm:shadow-none border sm:border-0 border-slate-100 rounded-xl sm:rounded-none">
-                <table className={cn(
-                  "w-full text-xs sm:text-sm border-collapse min-w-full bg-white",
-                  activeTab === 'status' && "table-fixed sm:table-auto"
-                )}>
+                <table className="w-full text-xs sm:text-sm border-collapse min-w-full bg-white">
                   <thead>
                     <tr className="border-b border-slate-100 text-left">
                       {activeTab === 'attendance' ? (
@@ -1135,31 +1132,25 @@ export const Dashboard = ({ token }: DashboardProps) => {
                           {renderSortableHeader('발생', 'totalLeave', 'center', 'text-xs sm:text-sm')}
                           {renderSortableHeader('사용', 'usedLeave', 'center', 'text-xs sm:text-sm')}
                           {renderSortableHeader('잔여', 'remainingLeave', 'center', 'text-xs sm:text-sm')}
-                          <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm">관리</th>
+                          <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm whitespace-nowrap">관리</th>
                         </>
                       ) : (
                         <>
-                          {renderSortableHeader('성명', 'name', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto sm:min-w-[70px] text-xs sm:text-sm' : 'min-w-[70px] text-xs sm:text-sm')}
+                          {renderSortableHeader('성명', 'name', 'left', 'min-w-[70px] text-xs sm:text-sm')}
                           {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell text-xs sm:text-sm')}
-                          {renderSortableHeader('팀명', 'team', 'left', activeTab === 'status' ? 'w-1/5 sm:w-auto table-cell text-xs sm:text-sm' : 'table-cell text-xs sm:text-sm')}
+                          {renderSortableHeader('팀명', 'team', 'left', 'table-cell text-xs sm:text-sm')}
                           {renderSortableHeader('직급', 'rank', 'left', activeTab === 'status' ? 'hidden sm:table-cell text-xs sm:text-sm' : 'table-cell text-xs sm:text-sm')}
-                          {activeTab === 'status' && statusViewMode !== 'tenure-hiring' && renderSortableHeader('연차', 'yearsInRank', 'left', 'w-1/5 sm:w-auto table-cell text-xs sm:text-sm')}
+                          {activeTab === 'status' && statusViewMode !== 'tenure-hiring' && renderSortableHeader('연차', 'yearsInRank', 'left', 'table-cell text-xs sm:text-sm')}
                           {activeTab === 'status' && renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                           {renderSortableHeader('입사일', 'hireDate', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                           {activeTab === 'status' && statusViewMode !== 'hr' && renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                           {activeTab === 'status' && statusViewMode !== 'hr' && renderSortableHeader('수습현황 (만료일)', 'probationStatus', 'center', 'hidden sm:table-cell text-xs sm:text-sm')}
                           {activeTab === 'status' && statusViewMode !== 'tenure-hiring' && (
-                            <>
-                              {renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'w-1/5 sm:w-auto table-cell text-xs sm:text-sm')}
-                              {renderSortableHeader('특이사항', 'remarksType', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
-                            </>
+                            renderSortableHeader('승진 여부', 'promotionStatus', 'center', 'table-cell text-xs sm:text-sm')
                           )}
                           {activeTab === 'expected-leaver' && renderSortableHeader('퇴사일', 'resignationDate', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                           {renderSortableHeader('상태', 'status', 'center', activeTab === 'status' ? 'hidden sm:table-cell text-xs sm:text-sm' : 'table-cell text-xs sm:text-sm')}
-                          <th className={cn(
-                            "px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm",
-                            activeTab === 'status' ? "w-1/5 sm:w-auto" : ""
-                          )}>관리</th>
+                          <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm whitespace-nowrap">관리</th>
                         </>
                       )}
                     </tr>
@@ -1237,8 +1228,6 @@ export const Dashboard = ({ token }: DashboardProps) => {
                             }
                           } else if (key === 'resignationDate') {
                             comparison = (a.resignationDate || '').localeCompare(b.resignationDate || '');
-                          } else if (key === 'remarksType') {
-                            comparison = (a.remarksType || '').localeCompare(b.remarksType || '');
                           }
 
                           if (comparison !== 0) {
@@ -1268,7 +1257,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group"
                             >
                               {/* 팀명 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm font-medium whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <input 
                                     className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
@@ -1278,7 +1267,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 ) : formatTeamName(emp.team)}
                               </td>
                               {/* 직급 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm font-medium whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <input 
                                     className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
@@ -1288,7 +1277,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 ) : formatRankName(emp.rank)}
                               </td>
                               {/* 성명 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold text-slate-900 text-xs sm:text-sm whitespace-nowrap">
                                 <div className="flex items-center gap-1.5">
                                   {editingId === emp.id ? (
                                     <input 
@@ -1309,7 +1298,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 </div>
                               </td>
                               {/* 입사일 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm font-medium whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <input 
                                     className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
@@ -1319,7 +1308,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 ) : emp.hireDate}
                               </td>
                               {/* 퇴사일 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-medium">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm font-medium whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <input 
                                     className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
@@ -1329,19 +1318,19 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 ) : (emp.resignationDate || '-')}
                               </td>
                               {/* 발생 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-center font-semibold text-slate-600 text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-center font-semibold text-slate-600 text-xs sm:text-sm whitespace-nowrap">
                                 {totalLeave}
                               </td>
                               {/* 사용 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-rose-500 font-semibold text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-center text-rose-500 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                 {usedLeave}
                               </td>
                               {/* 잔여 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-blue-600 font-semibold text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-center text-blue-600 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                 {remainingLeave}
                               </td>
                               {/* 관리 */}
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-right text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-right text-xs sm:text-sm whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <div className="flex justify-end gap-1">
                                      <button 
@@ -1384,8 +1373,8 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 : "hover:bg-slate-50/50"
                             }`}
                           >
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 min-w-[70px] text-xs sm:text-sm">
-                              <div className="flex items-center gap-1.5">
+                            <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold text-slate-900 min-w-[70px] text-xs sm:text-sm whitespace-nowrap">
+                              <div className="flex items-center gap-1.5 whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <input 
                                     className="border border-slate-200 rounded px-1.5 py-0.5 w-16 sm:w-24 outline-blue-500 focus:bg-white text-xs sm:text-sm"
@@ -1404,7 +1393,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 )}
                               </div>
                             </td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm hidden md:table-cell">
+                            <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm hidden md:table-cell whitespace-nowrap">
                               {editingId === emp.id ? (
                                 <input 
                                   className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm"
@@ -1413,7 +1402,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 />
                               ) : emp.hq}
                             </td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">
+                            <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm whitespace-nowrap">
                               {editingId === emp.id ? (
                                 <input 
                                   className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm"
@@ -1423,7 +1412,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               ) : formatTeamName(emp.team)}
                             </td>
                             <td className={cn(
-                              "px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm",
+                              "px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm whitespace-nowrap",
                               activeTab === 'status' ? "hidden sm:table-cell" : "table-cell"
                             )}>
                               {editingId === emp.id ? (
@@ -1435,12 +1424,12 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               ) : formatRankName(emp.rank)}
                             </td>
                             {activeTab === 'status' && statusViewMode !== 'tenure-hiring' && (
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                 {formatTenureYear(emp.yearsInRank)}
                               </td>
                             )}
                             {activeTab === 'status' && (
-                              <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm font-semibold">
+                              <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm font-semibold whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <select
                                     className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white"
@@ -1456,17 +1445,17 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 )}
                               </td>
                             )}
-                            <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
+                            <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 font-semibold text-xs sm:text-sm whitespace-nowrap">
                               {emp.hireDate}
                             </td>
                             {activeTab === 'status' && statusViewMode !== 'hr' && (
-                              <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-blue-600 font-semibold text-xs sm:text-sm">
+                              <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-blue-600 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                 {formatDuration(emp.duration) || '-'}
                               </td>
                             )}
                             {activeTab === 'status' && statusViewMode !== 'hr' && (
-                              <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-center text-xs sm:text-sm">
-                                <div className="flex flex-col items-center gap-0.5">
+                              <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-center text-xs sm:text-sm whitespace-nowrap">
+                                <div className="flex flex-col items-center gap-0.5 whitespace-nowrap">
                                   <select
                                     className={cn(
                                       "border rounded px-1.5 py-0.5 text-xs font-semibold focus:bg-white outline-none cursor-pointer",
@@ -1490,7 +1479,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               </td>
                             )}
                             {activeTab === 'status' && statusViewMode !== 'tenure-hiring' && (
-                              <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-xs sm:text-sm">
+                              <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-center text-xs sm:text-sm whitespace-nowrap">
                                 {editingId === emp.id ? (
                                   <select
                                     className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white cursor-pointer"
@@ -1522,57 +1511,13 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 )}
                               </td>
                             )}
-                            {activeTab === 'status' && statusViewMode !== 'tenure-hiring' && (
-                              <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-xs sm:text-sm">
-                                {editingId === emp.id ? (
-                                  <div className="flex flex-col gap-1.5 min-w-[130px]">
-                                    <select
-                                      className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white cursor-pointer"
-                                      value={editValues.remarksType || emp.remarksType || '선택 없음'}
-                                      onChange={(e) => setEditValues({ ...editValues, remarksType: e.target.value as any })}
-                                    >
-                                      <option value="선택 없음">선택 없음</option>
-                                      <option value="출산휴가">출산휴가</option>
-                                      <option value="육아휴직">육아휴직</option>
-                                      <option value="기타">기타</option>
-                                    </select>
-                                    <input
-                                      className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 focus:bg-white text-xs sm:text-sm w-full"
-                                      value={editValues.remarksMemo ?? emp.remarksMemo ?? ''}
-                                      onChange={(e) => setEditValues({ ...editValues, remarksMemo: e.target.value })}
-                                      placeholder="메모 입력"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 text-xs sm:text-sm text-slate-700">
-                                    {emp.remarksType && emp.remarksType !== '선택 없음' && (
-                                      <span className={cn(
-                                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border shrink-0",
-                                        emp.remarksType === '출산휴가' ? "bg-rose-50 text-rose-700 border-rose-200" :
-                                        emp.remarksType === '육아휴직' ? "bg-purple-50 text-purple-700 border-purple-200" :
-                                        "bg-slate-100 text-slate-700 border-slate-200"
-                                      )}>
-                                        {emp.remarksType}
-                                      </span>
-                                    )}
-                                    {emp.remarksMemo ? (
-                                      <span className="font-medium text-slate-600 truncate max-w-[120px] sm:max-w-[160px] text-xs sm:text-sm" title={emp.remarksMemo}>
-                                        {emp.remarksMemo}
-                                      </span>
-                                    ) : (
-                                      (!emp.remarksType || emp.remarksType === '선택 없음') && <span className="text-slate-400">-</span>
-                                    )}
-                                  </div>
-                                )}
-                              </td>
-                            )}
                             {activeTab === 'expected-leaver' && (
-                              <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
+                              <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                 {emp.resignationDate || '-'}
                               </td>
                             )}
                             <td className={cn(
-                              "px-3 py-3 sm:px-5 sm:py-4 text-center text-xs sm:text-sm",
+                              "px-2.5 py-3 sm:px-4 sm:py-3.5 text-center text-xs sm:text-sm whitespace-nowrap",
                               activeTab === 'status' ? "hidden sm:table-cell" : "table-cell"
                             )}>
                               {editingId === emp.id ? (
@@ -1590,7 +1535,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                   const isExpectedLeaver = emp.status === '재직' && isFutureDate(emp.resignationDate);
                                   return (
                                     <span className={cn(
-                                      "inline-flex items-center px-2 py-0.5 rounded-full text-xs sm:text-sm font-semibold border",
+                                      "inline-flex items-center px-2 py-0.5 rounded-full text-xs sm:text-sm font-semibold border whitespace-nowrap",
                                       isExpectedLeaver 
                                         ? "bg-amber-50 text-amber-700 border-amber-200" 
                                         : emp.status === '재직' 
@@ -1605,7 +1550,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                 })()
                               )}
                             </td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-right text-xs sm:text-sm">
+                            <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-right text-xs sm:text-sm whitespace-nowrap">
                               {editingId === emp.id ? (
                                 <div className="flex justify-end gap-1">
                                    <button 
@@ -2141,11 +2086,10 @@ export const Dashboard = ({ token }: DashboardProps) => {
                   <table className="w-full text-xs sm:text-sm border-collapse min-w-full bg-white">
                     <thead>
                       <tr className="border-b border-slate-100 text-left">
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">
+                        <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm whitespace-nowrap">
                           {flowMode === 'hires' ? '입사년월' : '퇴사년월'}
                         </th>
                         {renderSortableHeader('성명', 'name', 'left', 'min-w-[80px] text-xs sm:text-sm')}
-                        {renderSortableHeader('본부', 'hq', 'left', 'hidden md:table-cell text-xs sm:text-sm')}
                         {renderSortableHeader('팀명', 'team', 'left', 'text-xs sm:text-sm')}
                         {renderSortableHeader('직급', 'rank', 'left', 'text-xs sm:text-sm')}
                         {renderSortableHeader('형태', 'employmentType', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
@@ -2155,16 +2099,16 @@ export const Dashboard = ({ token }: DashboardProps) => {
                         {renderSortableHeader('재직기간', 'duration', 'left', 'hidden sm:table-cell text-xs sm:text-sm')}
                         {flowMode === 'hires' && (
                           <>
-                            <th className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm">
+                            <th className="hidden md:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 text-xs sm:text-sm whitespace-nowrap">
                               수습만료일
                             </th>
-                            <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm">
+                            <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 text-center text-xs sm:text-sm whitespace-nowrap">
                               수습현황
                             </th>
                           </>
                         )}
                         {renderSortableHeader('상태', 'status', 'center', 'text-xs sm:text-sm')}
-                        <th className="px-3 py-3 sm:px-5 sm:py-4 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm">
+                        <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-semibold text-slate-500 bg-slate-50/50 text-right text-xs sm:text-sm whitespace-nowrap">
                           관리
                         </th>
                       </tr>
@@ -2172,7 +2116,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                     <tbody>
                       {flowFilteredEmployees.length === 0 ? (
                         <tr>
-                          <td colSpan={12} className="px-6 py-12 text-center text-slate-400 text-sm">
+                          <td colSpan={11} className="px-6 py-12 text-center text-slate-400 text-sm">
                             해당 조건({yearLabel} {monthLabel !== '전체 월' ? monthLabel : ''})에 해당하는 {flowMode === 'hires' ? '입사자' : '퇴사자'}가 없습니다.
                           </td>
                         </tr>
@@ -2183,7 +2127,6 @@ export const Dashboard = ({ token }: DashboardProps) => {
                               const { key, direction } = sortConfig;
                               let comp = 0;
                               if (key === 'name') comp = a.name.localeCompare(b.name);
-                              else if (key === 'hq') comp = a.hq.localeCompare(b.hq);
                               else if (key === 'team') comp = a.team.localeCompare(b.team);
                               else if (key === 'rank') comp = a.rank.localeCompare(b.rank);
                               else if (key === 'employmentType') comp = (a.employmentType || '').localeCompare(b.employmentType || '');
@@ -2216,9 +2159,9 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                     : "hover:bg-slate-50/50"
                                 )}
                               >
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 text-xs sm:text-sm font-mono font-bold text-slate-600">
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-xs sm:text-sm font-mono font-bold text-slate-600 whitespace-nowrap">
                                   <span className={cn(
-                                    "px-2 py-0.5 rounded-md border text-xs",
+                                    "px-2 py-0.5 rounded-md border text-xs whitespace-nowrap",
                                     flowMode === 'hires'
                                       ? "bg-slate-50 text-slate-700 border-slate-200"
                                       : "bg-rose-50/60 text-rose-700 border-rose-200"
@@ -2226,39 +2169,34 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                     {ymBadge}
                                   </span>
                                 </td>
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 font-bold text-slate-900 text-xs sm:text-sm">
-                                  <div className="flex items-center gap-1.5">
-                                    {editingId === emp.id ? (
-                                      <input
-                                        className="border border-slate-200 rounded px-1.5 py-0.5 w-20 outline-blue-500 focus:bg-white text-xs sm:text-sm"
-                                        value={editValues.name || emp.name}
-                                        onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
-                                      />
-                                    ) : (
-                                      <>
-                                        <span>{emp.name}</span>
-                                        {isMidTermLeaver && (
-                                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                                            중도퇴사
-                                          </span>
-                                        )}
-                                      </>
-                                    )}
-                                  </div>
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold text-slate-900 text-xs sm:text-sm whitespace-nowrap">
+                                  {editingId === emp.id ? (
+                                    <input
+                                      className="border border-slate-200 rounded px-1.5 py-0.5 w-20 outline-blue-500 focus:bg-white text-xs sm:text-sm"
+                                      value={editValues.name || emp.name}
+                                      onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                                    />
+                                  ) : (
+                                    <div className="flex flex-col items-start gap-0.5">
+                                      <span className="whitespace-nowrap">{emp.name}</span>
+                                      {isMidTermLeaver && (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap leading-none">
+                                          중도퇴사
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
                                 </td>
-                                <td className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">
-                                  {emp.hq}
-                                </td>
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm whitespace-nowrap">
                                   {formatTeamName(emp.team)}
                                 </td>
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-500 text-xs sm:text-sm">
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 text-xs sm:text-sm whitespace-nowrap">
                                   {formatRankName(emp.rank)}
                                 </td>
-                                <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
+                                <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                   {emp.employmentType || '상용직'}
                                 </td>
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 text-slate-600 font-semibold text-xs sm:text-sm">
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-600 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                   {editingId === emp.id ? (
                                     <input
                                       className="border border-slate-200 rounded px-1.5 py-0.5 w-24 outline-blue-500 focus:bg-white text-xs sm:text-sm"
@@ -2268,7 +2206,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                   ) : emp.hireDate}
                                 </td>
                                 {(flowMode === 'leavers' || includeLeaversInHires) && (
-                                  <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-rose-600 font-semibold text-xs sm:text-sm">
+                                  <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-rose-600 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                     {editingId === emp.id ? (
                                       <input
                                         className="border border-slate-200 rounded px-1.5 py-0.5 w-24 outline-blue-500 focus:bg-white text-xs sm:text-sm"
@@ -2278,15 +2216,15 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                     ) : (emp.resignationDate || '-')}
                                   </td>
                                 )}
-                                <td className="hidden sm:table-cell px-3 py-3 sm:px-5 sm:py-4 text-blue-600 font-semibold text-xs sm:text-sm">
+                                <td className="hidden sm:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-blue-600 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                   {formatDuration(emp.duration) || '-'}
                                 </td>
                                 {flowMode === 'hires' && (
                                   <>
-                                    <td className="hidden md:table-cell px-3 py-3 sm:px-5 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm">
+                                    <td className="hidden md:table-cell px-2.5 py-3 sm:px-4 sm:py-3.5 text-slate-500 font-semibold text-xs sm:text-sm whitespace-nowrap">
                                       {emp.status === '퇴직' ? '-' : probationEndDate}
                                     </td>
-                                    <td className="px-3 py-3 sm:px-5 sm:py-4 text-center">
+                                    <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-center whitespace-nowrap">
                                       {emp.status === '퇴직' ? (
                                         <span className="text-xs text-slate-400">-</span>
                                       ) : (
@@ -2308,7 +2246,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                     </td>
                                   </>
                                 )}
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 text-center text-xs sm:text-sm">
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-center text-xs sm:text-sm whitespace-nowrap">
                                   {editingId === emp.id ? (
                                     <select
                                       className="border border-slate-200 rounded px-1.5 py-0.5 outline-blue-500 text-xs sm:text-sm font-semibold focus:bg-white"
@@ -2321,7 +2259,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                     </select>
                                   ) : (
                                     <span className={cn(
-                                      "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border",
+                                      "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border whitespace-nowrap",
                                       emp.status === '재직'
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                                         : emp.status === '퇴직'
@@ -2332,7 +2270,7 @@ export const Dashboard = ({ token }: DashboardProps) => {
                                     </span>
                                   )}
                                 </td>
-                                <td className="px-3 py-3 sm:px-5 sm:py-4 text-right text-xs sm:text-sm">
+                                <td className="px-2.5 py-3 sm:px-4 sm:py-3.5 text-right text-xs sm:text-sm whitespace-nowrap">
                                   {editingId === emp.id ? (
                                     <div className="flex justify-end gap-1">
                                       <button

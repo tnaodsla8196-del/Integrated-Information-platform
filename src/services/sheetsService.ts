@@ -1,4 +1,4 @@
-import { Employee, EmploymentStatus } from '../types';
+import { Employee, EmploymentStatus, EmploymentType } from '../types';
 import { supabase } from '../lib/supabaseClient';
 
 const SPREADSHEET_ID = '1kHoQPjudplszOtD39wnZHMHGAaEghTNkVuqNjNQf37o';

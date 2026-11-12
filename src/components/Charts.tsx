@@ -789,3 +789,104 @@ export const TenureDistributionChart = ({ data }: { data: Employee[] }) => {
     </div>
   );
 };
+
+export interface FlowChartItem {
+  label: string;
+  key: number | string;
+  total: number;
+  activeCount?: number;
+  retiredCount?: number;
+}
+
+export const YearlyMonthlyFlowChart = ({
+  data,
+  mode,
+  selectedKey,
+  onSelectKey,
+  showLeaverBreakdown = false,
+}: {
+  data: FlowChartItem[];
+  mode: 'hires' | 'leavers';
+  selectedKey: number | string;
+  onSelectKey: (key: number | string) => void;
+  showLeaverBreakdown?: boolean;
+}) => {
+  const primaryColor = mode === 'hires' ? '#2563EB' : '#E11D48';
+  const secondaryColor = mode === 'hires' ? '#60A5FA' : '#FB7185';
+
+  return (
+    <div className="h-[220px] sm:h-[260px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          margin={{ top: 24, right: 12, left: -20, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+          <XAxis
+            dataKey="label"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 11, fontWeight: 600, fill: '#64748B' }}
+            interval={0}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 10, fill: '#94A3B8' }}
+            allowDecimals={false}
+          />
+          <Tooltip
+            cursor={{ fill: '#F8FAFC' }}
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const item = payload[0].payload as FlowChartItem;
+                return (
+                  <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-100 text-xs space-y-1">
+                    <p className="font-bold text-slate-800">{item.label}</p>
+                    <p className={cn("font-bold", mode === 'hires' ? "text-blue-600" : "text-rose-600")}>
+                      {mode === 'hires' ? '입사 인원' : '퇴사 인원'}: <span className="text-slate-900">{item.total}명</span>
+                    </p>
+                    {mode === 'hires' && showLeaverBreakdown && (
+                      <div className="pt-1 border-t border-slate-100 text-[11px] text-slate-500 space-y-0.5">
+                        <p>현재 재직: <span className="font-semibold text-emerald-600">{item.activeCount ?? 0}명</span></p>
+                        <p>중도 퇴사: <span className="font-semibold text-rose-500">{item.retiredCount ?? 0}명</span></p>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            }}
+          />
+          <Bar
+            dataKey="total"
+            radius={[6, 6, 0, 0]}
+            barSize={26}
+            onClick={(entry) => onSelectKey(selectedKey === entry.key ? 'all' : entry.key)}
+            className="cursor-pointer"
+          >
+            <LabelList
+              dataKey="total"
+              position="top"
+              formatter={(val: number) => (val > 0 ? `${val}명` : '')}
+              style={{ fontSize: 11, fontWeight: 700, fill: '#334155' }}
+              offset={6}
+            />
+            {data.map((entry) => {
+              const isSelected = selectedKey === entry.key;
+              const isAll = selectedKey === 'all';
+              return (
+                <Cell
+                  key={`flow-cell-${entry.key}`}
+                  fill={isSelected ? primaryColor : isAll ? secondaryColor : '#CBD5E1'}
+                  opacity={isAll || isSelected ? 1 : 0.55}
+                />
+              );
+            })}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
